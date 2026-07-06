@@ -1,7 +1,31 @@
-import { Button, Container, Typography, Stack } from '@mui/material';
+import {
+  Button,
+  Container,
+  Typography,
+  Stack,
+  CssBaseline,
+  createTheme,
+  ThemeProvider,
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+
+import {
+  AdminPanelContex,
+  AdminPanelContextProvider,
+} from './pages/AdminPanel/context';
+import './App.css';
+
+import { TabelListSportsmen, TrainerForm, TrainersList } from './components';
+import { TableUI } from './shared/ui/Table/TableUI';
+import { FormUI } from './shared/ui/Form/Form';
+
+const theme = createTheme({
+  palette: {
+    primary: { main: '#1976d2' },
+  },
+});
 
 function App() {
   const [message, setMessage] = useState('Загрузка...');
@@ -12,25 +36,39 @@ function App() {
       .then((data) => setMessage(data))
       .catch(() => setMessage('Ошибка связи с бэкендом'));
   }, []);
-  return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        MUI + Vite + React 18
-      </Typography>
+  const [refreshKey, setRefreshKey] = useState(0);
 
-      <Stack direction="row" spacing={2}>
-        <Button variant="contained" color="primary" endIcon={<SendIcon />}>
-          Отправить
-        </Button>
-        <Button variant="outlined" color="error" startIcon={<DeleteIcon />}>
-          Удалить
-        </Button>
-      </Stack>
-      <h1>Фитнес Клуб</h1>
-      <p>
-        Ответ от сервера: <strong>{message}</strong>
-      </p>
-    </Container>
+  // Функция, которая просто меняет число, заставляя TrainersList перезагрузиться
+  const handleRefresh = () => setRefreshKey((prev) => prev + 1);
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <AdminPanelContextProvider list={['asdasd', 'asdfasd', 'asdf']}>
+          <TrainerForm onTrainerAdded={handleRefresh} />
+          <TrainersList key={refreshKey} />
+          {/* <TabelListSportsmen /> */}
+        </AdminPanelContextProvider>
+      </Container>
+    </ThemeProvider>
+    // <Container maxWidth="sm" sx={{ mt: 4 }}>
+    //   <Typography variant="h4" component="h1" gutterBottom>
+    //     MUI + Vite + React 18
+    //   </Typography>
+
+    //   <Stack direction="row" spacing={2}>
+    //     <Button variant="contained" color="primary" endIcon={<SendIcon />}>
+    //       Отправить
+    //     </Button>
+    //     <Button variant="outlined" color="error" startIcon={<DeleteIcon />}>
+    //       Удалить
+    //     </Button>
+    //   </Stack>
+    //   <h1>Фитнес Клуб</h1>
+    //   <p>
+    //     Ответ от сервера: <strong>{message}</strong>
+    //   </p>
+    // </Container>
   );
 }
 

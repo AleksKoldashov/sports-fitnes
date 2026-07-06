@@ -1,0 +1,7 @@
+model ClubMember {
+  id        Int      @id @default(autoincrement())
+  name      String   // добавлено
+  age       Int      // добавлено
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
