@@ -16,24 +16,28 @@ exports.ClubMemberController = void 0;
 const common_1 = require("@nestjs/common");
 const club_member_service_1 = require("./club-member.service");
 const create_club_member_dto_1 = require("./dto/create-club_member.dto");
+const update_club_member_dto_1 = require("./dto/update.club_member.dto");
 let ClubMemberController = class ClubMemberController {
     constructor(ClubMemberService) {
         this.ClubMemberService = ClubMemberService;
     }
-    async findAll() {
-        return await this.ClubMemberService.findAll();
-    }
     async create(createPostsDto) {
         return await this.ClubMemberService.create(createPostsDto);
     }
+    async findAll() {
+        return await this.ClubMemberService.findAll();
+    }
+    async findOne(id) {
+        return this.ClubMemberService.findOne(+id);
+    }
+    async remove(id) {
+        return this.ClubMemberService.remove(+id);
+    }
+    async update(id, updatePostsDto) {
+        return this.ClubMemberService.update(+id, updatePostsDto);
+    }
 };
 exports.ClubMemberController = ClubMemberController;
-__decorate([
-    (0, common_1.Get)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], ClubMemberController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
@@ -41,6 +45,34 @@ __decorate([
     __metadata("design:paramtypes", [create_club_member_dto_1.CreateClubMemberDto]),
     __metadata("design:returntype", Promise)
 ], ClubMemberController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ClubMemberController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ClubMemberController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ClubMemberController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, update_club_member_dto_1.UpdateClubMemberDto]),
+    __metadata("design:returntype", Promise)
+], ClubMemberController.prototype, "update", null);
 exports.ClubMemberController = ClubMemberController = __decorate([
     (0, common_1.Controller)('club-member'),
     __metadata("design:paramtypes", [club_member_service_1.ClubMemberService])

@@ -20,12 +20,34 @@ let ClubMemberService = class ClubMemberService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async findAll() {
-        return await this.prisma.clubMember.findMany();
-    }
     async create(CreateClubMemberDto) {
         return await this.prisma.clubMember.create({
             data: CreateClubMemberDto,
+        });
+    }
+    async findAll() {
+        return await this.prisma.clubMember.findMany();
+    }
+    async findOne(id) {
+        const clubMember = await this.prisma.clubMember.findUnique({
+            where: { id },
+        });
+        if (!clubMember) {
+            throw new common_1.NotFoundException(`Пост с ID ${id} не найден`);
+        }
+        return clubMember;
+    }
+    async remove(id) {
+        await this.findOne(id);
+        return await this.prisma.clubMember.delete({
+            where: { id },
+        });
+    }
+    async update(id, updateClubMemberDto) {
+        await this.findOne(id);
+        return await this.prisma.clubMember.update({
+            where: { id },
+            data: updateClubMemberDto,
         });
     }
 };

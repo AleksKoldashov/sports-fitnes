@@ -1,4 +1,4 @@
 export declare class CreateClubMemberDto {
-    body: string;
-    title: string;
+    name: string;
+    age: string;
 }
