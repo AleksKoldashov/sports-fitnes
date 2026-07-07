@@ -1,0 +1,28 @@
+@use '../../app/styles/variables' as var;
+
+.fieldWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  cursor: text; // При наведении на лейбл курсор сразу показывает, что можно вводить текст
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var.$color-text-secondary;
+  user-select: none; // Запрещаем случайное выделение текста лейбла при кликах
+}
+
+.controlContainer {
+  position: relative;
+  width: 100%;
+}
+
+.errorMessage {
+  font-size: 12px;
+  font-weight: 500;
+  color: var.$color-error;
+  margin-top: 2px;
+}

@@ -1,6 +1,17 @@
 @use './styles/variables' as *;
 
 body {
-  background-color: $bg-color;
-  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: $color-bg-main;
+  color: $color-text-primary;
+
+  // Назначаем Montserrat главным, а Arial — запасным на случай отсутствия сети
+  font-family: 'Montserrat', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  // Увеличиваем расстояние между буквами глобально для всего сайта
+  // Значение 0.03em — это золотая середина: текст станет воздушным, но останется читабельным
+  letter-spacing: 0.03em;
 }

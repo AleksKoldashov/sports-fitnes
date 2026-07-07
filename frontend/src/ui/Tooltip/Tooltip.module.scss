@@ -1,0 +1,83 @@
+@use '../../app/styles/variables' as var;
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-block; // Обертка сжимается ровно под размер дочернего элемента
+}
+
+// Всплывающее текстовое облачко
+.bubble {
+  position: absolute;
+  z-index: 2500; // Высокий приоритет, но ниже чем у модалок и тостов
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #ffffff;
+  background-color: #1e293b; // Контрастный темно-серый фон на светлом сайте
+  border-radius: 6px;
+  white-space: nowrap; // Текст не будет переноситься на новую строку
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  // Начальное состояние (скрыто)
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none; // Мышка игнорирует тултип, клики идут сквозь него
+
+  // По умолчанию позиционируем СВЕРХУ элемента с легким смещением для анимации
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  margin-bottom: 8px;
+
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out,
+    visibility 0.15s;
+
+  // Маленький треугольник-стрелочка снизу по центру
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1e293b transparent transparent transparent;
+  }
+}
+
+// === ПОЗИЦИОНИРОВАНИЕ СНИЗУ ===
+.positionBottom {
+  top: 100%;
+  bottom: auto;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  margin-top: 8px;
+  margin-bottom: 0;
+
+  &::after {
+    top: auto;
+    bottom: 100%;
+    border-color: transparent transparent #1e293b transparent;
+  }
+}
+
+// === ЭФФЕКТ ПРИ НАВЕДЕНИИ МЫШИ ===
+.tooltipWrapper:hover {
+  .bubble {
+    opacity: 1;
+    visibility: visible;
+
+    // Возвращаем в исходную точку (создает эффект плавного вылета)
+    &.positionTop {
+      transform: translateX(-50%) translateY(0);
+    }
+    &.positionBottom {
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+}

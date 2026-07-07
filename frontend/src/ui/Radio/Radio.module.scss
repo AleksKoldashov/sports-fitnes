@@ -1,0 +1,40 @@
+@use '../../app/styles/variables' as var;
+
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var.$color-border;
+  border-radius: 50%;
+  background-color: var.$color-bg-card;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: transparent;
+    transition: all 0.2s ease;
+  }
+}
+
+.hiddenInput:checked + .circle {
+  border-color: var.$color-brand;
+  &::after {
+    background-color: var.$color-brand;
+  }
+}

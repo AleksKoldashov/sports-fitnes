@@ -1,0 +1,61 @@
+.flex {
+  display: flex;
+}
+
+// Направления
+.directionRow {
+  flex-direction: row;
+}
+.directionColumn {
+  flex-direction: column;
+}
+
+// Выравнивание по главной оси
+.justifyStart {
+  justify-content: flex-start;
+}
+.justifyCenter {
+  justify-content: center;
+}
+.justifyEnd {
+  justify-content: flex-end;
+}
+.justifyBetween {
+  justify-content: space-between;
+}
+
+// Выравнивание по поперечной оси
+.alignStart {
+  align-items: flex-start;
+}
+.alignCenter {
+  align-items: center;
+}
+.alignEnd {
+  align-items: flex-end;
+}
+
+// Предустановленные отступы (шаг сетки 4px)
+.gap4 {
+  gap: 4px;
+}
+.gap8 {
+  gap: 8px;
+}
+.gap12 {
+  gap: 12px;
+}
+.gap16 {
+  gap: 16px;
+}
+.gap24 {
+  gap: 24px;
+}
+.gap32 {
+  gap: 32px;
+}
+
+// Растягивание на всю ширину
+.max {
+  width: 100%;
+}

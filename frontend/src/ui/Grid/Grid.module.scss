@@ -1,0 +1,54 @@
+.grid {
+  display: grid;
+}
+
+// Предустановленные сетки (адаптивные колонки)
+// auto-fill создаст колонки указанной минимальной ширины, сколько поместится в экран
+.colsAdaptive150 {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.colsAdaptive250 {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+.colsAdaptive300 {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+// Статичные сетки (фиксированное число колонок)
+.cols1 {
+  grid-template-columns: repeat(1, 1fr);
+}
+.cols2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.cols3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.cols4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+// Отступы (шаг сетки 4px, как во Flex)
+.gap4 {
+  gap: 4px;
+}
+.gap8 {
+  gap: 8px;
+}
+.gap12 {
+  gap: 12px;
+}
+.gap16 {
+  gap: 16px;
+}
+.gap24 {
+  gap: 24px;
+}
+.gap32 {
+  gap: 32px;
+}
+
+// Растягивание на всю ширину
+.max {
+  width: 100%;
+}

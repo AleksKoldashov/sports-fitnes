@@ -1,0 +1,76 @@
+@use '../../app/styles/variables' as var;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+  white-space: nowrap;
+  user-select: none;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// === СТИЛЬ С ФИРМЕННЫМ ФИОЛЕТОВЫМ ЦВЕТОМ ===
+.variantFilled {
+  background-color: var.$color-brand;
+  color: #ffffff; // Меняем цвет текста на белый для идеальной читаемости!
+
+  &:not(:disabled):hover {
+    background-color: var.$color-brand-hover;
+  }
+  &:not(:disabled):active {
+    background-color: var.$color-brand-active;
+  }
+}
+
+// Контурная кнопка теперь тоже будет интерактивно подсвечиваться фиолетовым
+.variantOutlined {
+  background-color: transparent;
+  border: 1px solid var.$color-border; // Заметная серая граница
+  color: var.$color-text-primary; // Глубокий темный текст (теперь его отлично видно!)
+
+  &:not(:disabled):hover {
+    border-color: var.$color-brand; // Рамка становится фиолетовой
+    color: var.$color-brand; // Текст становится фиолетовым
+    background-color: rgba(79, 70, 229, 0.04); // Едва заметный фиолетовый блик
+  }
+
+  &:not(:disabled):active {
+    background-color: rgba(79, 70, 229, 0.1);
+  }
+}
+
+.variantClear {
+  background-color: transparent;
+  color: var.$color-text-secondary;
+
+  &:not(:disabled):hover {
+    color: var.$color-bg-main;
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+// РАЗМЕРЫ
+.sizeM {
+  padding: 10px 20px;
+  font-size: 14px;
+}
+.sizeL {
+  padding: 14px 28px;
+  font-size: 16px;
+}
+
+.max {
+  width: 100%;
+}

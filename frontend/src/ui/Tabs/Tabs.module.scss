@@ -1,0 +1,32 @@
+@use '../../app/styles/variables' as var;
+
+.tabsList {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var.$color-border;
+  width: 100%;
+}
+
+.tabBtn {
+  background: transparent;
+  border: none;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var.$color-text-secondary;
+  cursor: pointer;
+  position: relative;
+  bottom: -2px; // Перекрываем нижнюю границу списка
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var.$color-text-primary;
+  }
+
+  &.active {
+    color: var.$color-brand;
+    border-bottom-color: var.$color-brand;
+  }
+}

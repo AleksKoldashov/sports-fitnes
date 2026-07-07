@@ -1,0 +1,40 @@
+@use '../../app/styles/variables' as var;
+
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.track {
+  width: 44px;
+  height: 24px;
+  background-color: var.$color-border;
+  border-radius: 12px;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.handle {
+  width: 20px;
+  height: 20px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.hiddenInput:checked + .track {
+  background-color: var.$color-brand; // Становится фиолетовым при активации
+  .handle {
+    transform: translateX(20px);
+  }
+}

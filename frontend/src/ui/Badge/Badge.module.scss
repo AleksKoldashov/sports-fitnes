@@ -1,0 +1,22 @@
+@use '../../app/styles/variables' as var;
+
+.badge {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var.$color-success;
+}
+.error {
+  background-color: rgba(244, 63, 94, 0.1);
+  color: var.$color-error;
+}
+.primary {
+  background-color: rgba(79, 70, 229, 0.1);
+  color: var.$color-brand;
+}

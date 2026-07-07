@@ -1,0 +1,111 @@
+@use '../../app/styles/variables' as var;
+
+// Задний полупрозрачный фон на весь экран
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 3000; // Выше, чем поповеры и экшн-шиты
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+// Контейнер самого окна
+.window {
+  width: 100%;
+  max-width: 500px; // Стандартная ширина модалки
+  background-color: var.$color-bg-card; // Чисто белый фон на сером сайте
+  border: 1px solid var.$color-border;
+  border-radius: 12px;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScaleUp 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+// === БЛОК 1: ХЕДЕР ===
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var.$color-border;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var.$color-text-primary;
+}
+
+// Кнопка-крестик
+.closeButton {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: var.$color-text-secondary;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 6px;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    color: var.$color-text-primary;
+    background-color: #f3f4f6;
+  }
+}
+
+// === БЛОК 2: БАДИ (ТЕЛО) ===
+.body {
+  padding: 20px;
+  font-size: 15px;
+  color: var.$color-text-primary;
+  line-height: 1.5;
+  max-height: 70vh; // Защита от переполнения (включит скролл, если текста слишком много)
+  overflow-y: auto;
+}
+
+// === БЛОК 3: ФУТЕР ===
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 14px 20px;
+  background-color: #f9fafb; // Легкое выделение подвала формы другим тоном
+  border-top: 1px solid var.$color-border;
+}
+
+// Анимации появления
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalScaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,44 @@
+@use '../../app/styles/variables' as var;
+
+.popoverContainer {
+  position: relative;
+  display: inline-block;
+}
+
+// Триггер (кнопка или иконка, на которую кликают)
+.trigger {
+  display: inline-flex;
+  cursor: pointer;
+}
+
+// Сама всплывающая панель
+.panel {
+  position: absolute;
+  top: 100%;
+  right: 0; // По умолчанию выравниваем по правому краю кнопки
+  margin-top: 8px;
+  z-index: 500;
+
+  background-color: var.$color-bg-card; // Чисто белый фон
+  border: 1px solid var.$color-border;
+  border-radius: 12px;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  min-width: 200px;
+
+  // Плавная анимация появления
+  animation: popoverFadeIn 0.15s ease-out;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

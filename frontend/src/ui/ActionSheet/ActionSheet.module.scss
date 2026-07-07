@@ -1,0 +1,119 @@
+@use '../../app/styles/variables' as var;
+
+// Темная полупрозрачная подложка на весь экран
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end; // По умолчанию на мобилках прижимаем к низу
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+// Контейнер самой панели
+.sheet {
+  width: 100%;
+  max-width: 480px; // Ограничиваем максимальную ширину
+  background-color: var.$color-bg-card; // Чисто белый фон на вашем сером сайте
+  border-radius: 16px 16px 0 0; // Скругляем только верхние углы
+  padding: 8px 16px 24px 16px; // Снизу делаем отступ больше для удобства пальцев
+  box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.25s cubic-bezier(0.1, 0.76, 0.55, 0.94);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  // На десктопах превращаем в центрированную плавающую панель
+  @media (min-width: 768px) {
+    border-radius: 16px;
+    margin-bottom: auto;
+    margin-top: auto;
+    padding: 16px;
+    animation: fadeIn 0.2s ease-out;
+  }
+}
+
+// Маленькая горизонтальная полоска сверху (индикатор свайпа для мобилок)
+.dragHandle {
+  width: 40px;
+  height: 4px;
+  background-color: #cbd5e1;
+  border-radius: 2px;
+  margin: 0 auto 8px auto;
+  @media (min-width: 768px) {
+    display: none; // На десктопе она не нужна
+  }
+}
+
+// Заголовок меню
+.title {
+  text-align: center;
+  padding: 8px 0;
+  color: var.$color-text-secondary;
+}
+
+// Кнопка действия (строка меню)
+.actionButton {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: var.$color-text-primary;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background-color: var.$color-bg-card-hover; // #f9fafb
+  }
+
+  // Стили для опасных действий (Удалить / Сбросить)
+  &.destructive {
+    color: var.$color-error; // Красный текст
+
+    &:hover {
+      background-color: rgba(220, 38, 38, 0.05); // Нежно-красный фон
+    }
+  }
+}
+
+// Отдельная кнопка отмены (внизу списка)
+.cancelButton {
+  composes: actionButton;
+  background-color: #f3f4f6; // Нейтральный серый фон
+  margin-top: 4px;
+
+  &:hover {
+    background-color: #e5e7eb;
+  }
+}
+
+// Анимации
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

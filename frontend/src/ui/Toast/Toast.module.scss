@@ -1,0 +1,104 @@
+@use '../../app/styles/variables' as var;
+
+// Фиксированный контейнер для тостов (обычно вешается в верхний/нижний угол экрана)
+.toastContainer {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 4000; // Самый высокий приоритет поверх модалок
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none; // Чтобы контейнер не мешал кликам, когда тостов нет
+}
+
+// Базовые стили для одного тоста
+.toast {
+  pointer-events: auto; // Возвращаем кликабельность самой плашке
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 280px;
+  max-width: 400px;
+  background-color: var.$color-bg-card; // Чисто белый фон на вашем сером сайте
+  border: 1px solid var.$color-border;
+  border-left: 5px solid transparent; // Заготовка под цветную полоску вида
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.05),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  animation: toastSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+// === ТРИ ВИДА ТОСТОВ ===
+
+// 1. Успех (Зеленый)
+.typeSuccess {
+  border-left-color: var.$color-success;
+  .icon {
+    color: var.$color-success;
+  }
+}
+
+// 2. Ошибка (Красный)
+.typeError {
+  border-left-color: var.$color-error;
+  .icon {
+    color: var.$color-error;
+  }
+}
+
+// 3. Предупреждение (Оранжевый/Желтый)
+.typeWarning {
+  border-left-color: #d97706; // Жестко прописываем контрастный оранжевый цвет
+  .icon {
+    color: #d97706;
+  }
+}
+
+// Текст сообщения
+.message {
+  color: var.$color-text-primary;
+  flex: 1;
+}
+
+// Общие стили для иконки вида и крестика закрытия
+.icon {
+  font-size: 18px;
+  display: inline-flex;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var.$color-text-secondary;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: var.$color-text-primary;
+  }
+}
+
+// Анимация вылета справа
+@keyframes toastSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
