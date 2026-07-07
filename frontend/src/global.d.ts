@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 declare module '*.css';
 
 // Поддержка SVG как обычной строки/URL-пути
@@ -12,3 +14,13 @@ declare module '*.jpg';
 declare module '*.jpeg';
 declare module '*.webp';
 declare module '*.gif';
+
+declare module '*.scss' {
+  const content: { [className: string]: string };
+  export default content;
+}
+
+declare module '*.sass' {
+  const content: { [className: string]: string };
+  export default content;
+}

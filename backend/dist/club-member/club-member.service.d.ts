@@ -6,37 +6,37 @@ export declare class ClubMemberService {
     constructor(prisma: PrismaService);
     create(CreateClubMemberDto: CreateClubMemberDto): Promise<{
         name: string;
-        age: string;
         createdAt: Date;
-        updatedAt: Date;
         id: number;
+        updatedAt: Date;
+        age: string;
     }>;
     findAll(): Promise<{
         name: string;
-        age: string;
         createdAt: Date;
-        updatedAt: Date;
         id: number;
+        updatedAt: Date;
+        age: string;
     }[]>;
     findOne(id: number): Promise<{
         name: string;
-        age: string;
         createdAt: Date;
-        updatedAt: Date;
         id: number;
+        updatedAt: Date;
+        age: string;
     }>;
     remove(id: number): Promise<{
         name: string;
-        age: string;
         createdAt: Date;
-        updatedAt: Date;
         id: number;
+        updatedAt: Date;
+        age: string;
     }>;
     update(id: number, updateClubMemberDto: UpdateClubMemberDto): Promise<{
         name: string;
-        age: string;
         createdAt: Date;
-        updatedAt: Date;
         id: number;
+        updatedAt: Date;
+        age: string;
     }>;
 }

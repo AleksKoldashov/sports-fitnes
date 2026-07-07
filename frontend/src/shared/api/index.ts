@@ -1,1 +1,0 @@
-export { trainersApi } from './trainers';
