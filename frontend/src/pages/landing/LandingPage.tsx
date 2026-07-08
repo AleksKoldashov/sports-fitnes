@@ -1,11 +1,6 @@
-import { Tooltip } from '@/ui';
-import { Button } from '@/ui/Button';
-import { Card } from '@/ui/Card';
-import { Flex } from '@/ui/Flex';
-import { FormField } from '@/ui/FormField';
-import { Input } from '@/ui/Input';
-import { Modal } from '@/ui/Modal';
-import { Textarea } from '@/ui/Textarea';
+import { Button, Flex } from '@/ui';
+import { Footer } from '@/widgets/Footer';
+import { Header } from '@/widgets/Header';
 import { useState } from 'react';
 
 export const LandingPage = () => {
@@ -25,55 +20,40 @@ export const LandingPage = () => {
   );
 
   return (
-    <Flex
-      direction="column"
-      gap="16"
-      style={{ padding: '24px', width: '1000px' }}
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
     >
-      <Button onClick={() => setIsOpen(true)}>Редактировать вес</Button>
+      {/* 1. Хедер — теперь он жестко растянут на 100% ширины контентной зоны */}
+      <div style={{ width: '100%', boxSizing: 'border-box' }}>
+        <Header />
+      </div>
 
-      <Modal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        title="Текущие замеры"
-        footerContent={footerButtons} // Передаем кнопки в футер
+      {/* 2. Центральная контентная часть */}
+      <Flex
+        direction="column"
+        gap="16"
+        style={{
+          padding: '24px',
+          width: '100%',
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          boxSizing: 'border-box',
+        }}
       >
-        <Input
-          label="Введите ваш новый вес (кг)"
-          type="number"
-          placeholder="75"
-        />
-      </Modal>
-      <Modal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        showFooter={false} // НИЖНИЙ СЕРЫЙ БЛОК ПОЛНОСТЬЮ ИСЧЕЗНЕТ
-      >
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ marginTop: '12px' }}>
-            Опускайтесь до параллели с полом, не отрывайте пятки.
-          </p>
-        </div>
-      </Modal>
+        <Button variant="filled">Сохранить вес</Button>
+      </Flex>
 
-      <Card variant="dark" style={{ width: '400px', padding: '24px' }}>
-        <Flex direction="column" gap="16" max>
-          <h3>Завершение тренировки</h3>
-
-          <FormField label="Заметки о тренировке (самочувствие, веса)">
-            <Textarea
-              placeholder="Например: В третьем подходе жима штанги увеличил вес до 65кг. Пульс в норме..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
-          </FormField>
-          <Tooltip text="ghjsdkfajshd">
-            <Button variant="filled" max>
-              Сохранить в дневник
-            </Button>
-          </Tooltip>
-        </Flex>
-      </Card>
-    </Flex>
+      {/* 3. Футер */}
+      <div style={{ width: '100%', boxSizing: 'border-box' }}>
+        <Footer />
+      </div>
+    </div>
   );
 };

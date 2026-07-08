@@ -1,0 +1,42 @@
+@use '../../../app/styles/variables' as var;
+
+// Главный контейнер-сетка на весь экран
+.layoutContainer {
+  display: min-content;
+  min-height: 100vh;
+  background-color: var.$color-bg-main; // Ваш светлый фон #e8e9eb
+  font-family: 'Montserrat', sans-serif;
+}
+
+// Контейнер для шапки (Header)
+.headerWrapper {
+  position: fixed;
+  top: 0;
+  left: 260px; // Отступ от левого сайдбара
+  right: 320px; // Отступ от правого сайдбара
+  height: 70px; // Фиксированная высота шапки
+  background-color: var.$color-bg-card; // Чисто белый фон
+  border-bottom: 1px solid var.$color-border;
+  z-index: 1000;
+}
+
+// Центральная контентная зона страницы
+.mainContent {
+  margin-left: 260px; // Ширина левого сайдбара
+  margin-right: 320px; // Ширина правого сайдбара
+  padding: 102px 32px 32px 32px; // Верхний паддинг 102px (70px шапка + 32px отступ)
+  min-height: calc(100vh - 60px); // Запас под высоту футера
+  box-sizing: border-box;
+}
+
+// Контейнер для подвала (Footer)
+.footerWrapper {
+  margin-left: 260px;
+  margin-right: 320px;
+  height: 60px; // Высота футера
+  background-color: var.$color-bg-card; // Чисто белый фон
+  border-top: 1px solid var.$color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

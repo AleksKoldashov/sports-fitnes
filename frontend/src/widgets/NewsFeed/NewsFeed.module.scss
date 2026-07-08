@@ -1,0 +1,51 @@
+@use '../../app/styles/variables' as var; // Ручной проверенный импорт
+
+.newsFeedContainer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px; // Делаем её чуть шире левого меню, чтобы текст хорошо читался
+  background-color: var.$color-bg-card; // Чисто белый фон
+  border-left: 1px solid var.$color-border;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.02);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 1400; // Чуть ниже левого меню, но выше контента страницы
+}
+
+.feedList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto; // Если новостей много, внутри блока появится аккуратный скролл
+  flex: 1;
+  padding-right: 4px;
+
+  // Красивый тонкий скроллбар для современных браузеров
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var.$color-border;
+    border-radius: 4px;
+  }
+}
+
+// Отдельная карточка новости
+.newsItem {
+  padding: 12px;
+  border-radius: 10px;
+  background-color: #f9fafb; // Легкая серая подложка, чтобы выделяться на белой панели
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var.$color-brand; // При наведении рамка подсвечивается фиолетовым
+    background-color: #ffffff;
+    transform: translateY(-1px);
+  }
+}

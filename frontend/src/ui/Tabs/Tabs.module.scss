@@ -2,9 +2,13 @@
 
 .tabsList {
   display: flex;
+  justify-content: center;
   gap: 8px;
-  border-bottom: 2px solid var.$color-border;
   width: 100%;
+}
+
+.borBot {
+  border-bottom: 2px solid var.$color-border;
 }
 
 .tabBtn {

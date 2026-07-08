@@ -74,7 +74,7 @@
   font-size: 15px;
   color: var.$color-text-primary;
   line-height: 1.5;
-  max-height: 70vh; // Защита от переполнения (включит скролл, если текста слишком много)
+  // max-height: 70vh; // Защита от переполнения (включит скролл, если текста слишком много)
   overflow-y: auto;
 }
 

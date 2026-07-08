@@ -1,5 +1,5 @@
 import { QueryProvider } from './providers/QueryProvider';
-import { RouterProvider } from './providers/RouterProvider';
+import { RouterProvider } from './providers/RouterProvider/RouterProvider';
 
 function App() {
   return (

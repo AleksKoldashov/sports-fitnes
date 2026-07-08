@@ -17,4 +17,8 @@ export default defineConfig({
       } as any,
     },
   },
+  server: {
+    host: '0.0.0.0',
+    allowedHosts: true,
+  },
 });
