@@ -1,3 +1,7 @@
+// ============================================
+// 1. НАСТРОЙКИ И ПОДКЛЮЧЕНИЯ
+// ============================================
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,13 +11,156 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Trainer {
-  id          Int      @id @default(autoincrement())
-  name        String
-  specialty   String
-  experience  Int
-  createdAt   DateTime @default(now())
+// ============================================
+// 2. ГЛОБАЛЬНЫЕ ПЕРЕЧИСЛЕНИЯ (ENUMS)
+// ============================================
+
+enum Role {
+  CLUB_MEMBER
+  TRAINER
+  MANAGER
+  HR
+  DIRECTOR
 }
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+// ============================================
+// 3. ЯДРО СИСТЕМЫ (ПОЛЬЗОВАТЕЛИ)
+// ============================================
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String   // Хранить только хеш (bcrypt)
+  role      Role     @default(CLUB_MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи с профилями (1:1)
+  clubMember ClubMember?
+  trainer    Trainer?
+  manager    Manager?
+  hr         Hr?
+  director   Director?
+
+  createdApplications  EmployeeApplication[] @relation("CreatedApplications")
+  reviewedApplications EmployeeApplication[] @relation("ReviewedApplications")
+  notifications        Notification[]
+}
+
+// ============================================
+// 4. ПРОФИЛИ ПОЛЬЗОВАТЕЛЕЙ
+// ============================================
+
+model ClubMember {
+  id         Int      @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  patronymic String?
+  age        Int
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Trainer {
+  id         Int      @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  patronymic String?
+  specialty  String
+  experience Int
+  rating     Float?   @default(0)
+  isActive   Boolean  @default(true)
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Manager {
+  id         Int      @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  patronymic String?
+  department String
+  phone      String
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Hr {
+  id         Int      @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  patronymic String?
+  phone      String
+  isActive   Boolean  @default(true)
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Director {
+  id         Int      @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  patronymic String?
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ============================================
+// 5. КАДРОВЫЙ УЧЕТ (ЗАЯВКИ)
+// ============================================
+
+model EmployeeApplication {
+  id              Int                @id @default(autoincrement())
+  email           String
+  role            Role
+  profileData     Json               // Данные для профиля (зависят от роли)
+  status          ApplicationStatus  @default(PENDING)
+  rejectionReason String?            // Причина отказа (если REJECTED)
+
+  createdById     Int                // HR, создавший заявку
+  createdBy       User               @relation("CreatedApplications", fields: [createdById], references: [id])
+
+  reviewedById    Int?               // Директор, утвердивший/отклонивший
+  reviewedBy      User?              @relation("ReviewedApplications", fields: [reviewedById], references: [id])
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+// ============================================
+// 6. СИСТЕМА УВЕДОМЛЕНИЙ
+// ============================================
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // APPLICATION_APPROVED, APPLICATION_REJECTED, NEW_APPLICATION
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ============================================
+// 7. БИЗНЕС-МОДУЛИ (ПОСТЫ, КАЛЕНДАРЬ, МАГАЗИН)
+// ============================================
 
 model Posts {
   id        Int      @id @default(autoincrement())
@@ -23,11 +170,25 @@ model Posts {
   updatedAt DateTime @updatedAt
 }
 
-model ClubMember{
-  id        Int      @id @default(autoincrement())
-  name      String
-  age       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+// ============================================
+// БУДУЩИЕ МОДУЛИ (ДЛЯ ПЛАНИРОВАНИЯ)
+// ============================================
 
+// model Event {
+//   id        Int      @id @default(autoincrement())
+//   title     String
+//   ...
+// }
+
+// model Product {
+//   id        Int      @id @default(autoincrement())
+//   name      String
+//   price     Float
+//   ...
+// }
+
+// model Poll {
+//   id        Int      @id @default(autoincrement())
+//   question  String
+//   ...
+// }
