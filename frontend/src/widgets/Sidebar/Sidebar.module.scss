@@ -5,7 +5,8 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 260px; // Фиксированная удобная ширина бокового меню
+  margin-top: 71px;
+  // width: 260px; // Фиксированная удобная ширина бокового меню
   background-color: var.$color-bg-card; // Чисто белый фон
   border-right: 1px solid var.$color-border;
   box-shadow: 4px 0 12px rgba(0, 0, 0, 0.03);

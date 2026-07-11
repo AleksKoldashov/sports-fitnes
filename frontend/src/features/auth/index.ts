@@ -1,2 +1,4 @@
-export { AuthModal } from './AuthByEmail/AuthModal';
-export { useAuthStore } from './model/useAuthStore';
+export * from './api';
+export * from './hooks';
+export * from './model';
+export { AuthModal } from './ui/AuthModal';

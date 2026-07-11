@@ -47,12 +47,19 @@ export class AdminController {
   @Roles(Role.HR, Role.DIRECTOR)
   async getApplications(
     @Request() req,
-    @Query('status') status?: string, // <-- query-параметр status
+    @Query('status') status?: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
   ) {
+    const limitNumber = limit ? parseInt(limit, 10) : 10;
+    const offsetNumber = offset ? parseInt(offset, 10) : 0;
+
     return this.adminService.getApplications(
       req.user.id as number,
       req.user.role as Role,
       status,
+      limitNumber,
+      offsetNumber,
     );
   }
 }

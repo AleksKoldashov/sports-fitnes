@@ -1,3 +1,56 @@
+// @use '../../app/styles/variables' as var; // Ручной проверенный импорт
+
+// .newsFeedContainer {
+//   position: fixed;
+//   top: 0;
+//   right: 0;
+//   bottom: 0;
+//   margin-top: 71px;
+//   width: 320px; // Делаем её чуть шире левого меню, чтобы текст хорошо читался
+//   background-color: var.$color-bg-card; // Чисто белый фон
+//   border-left: 1px solid var.$color-border;
+//   box-shadow: -4px 0 12px rgba(0, 0, 0, 0.02);
+//   padding: 24px 16px;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 20px;
+//   z-index: 1400; // Чуть ниже левого меню, но выше контента страницы
+//   transition: transform 0.3s ease; /* Плавное скрытие панели */
+// }
+
+// .feedList {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 16px;
+//   overflow-y: auto; // Если новостей много, внутри блока появится аккуратный скролл
+//   flex: 1;
+//   padding-right: 4px;
+
+//   // Красивый тонкий скроллбар для современных браузеров
+//   &::-webkit-scrollbar {
+//     width: 4px;
+//   }
+//   &::-webkit-scrollbar-thumb {
+//     background-color: var.$color-border;
+//     border-radius: 4px;
+//   }
+// }
+
+// // Отдельная карточка новости
+// .newsItem {
+//   padding: 12px;
+//   border-radius: 10px;
+//   background-color: #f9fafb; // Легкая серая подложка, чтобы выделяться на белой панели
+//   border: 1px solid transparent;
+//   cursor: pointer;
+//   transition: all 0.2s ease;
+
+//   &:hover {
+//     border-color: var.$color-brand; // При наведении рамка подсвечивается фиолетовым
+//     background-color: #ffffff;
+//     transform: translateY(-1px);
+//   }
+// }
 @use '../../app/styles/variables' as var; // Ручной проверенный импорт
 
 .newsFeedContainer {
@@ -5,26 +58,82 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: 320px; // Делаем её чуть шире левого меню, чтобы текст хорошо читался
-  background-color: var.$color-bg-card; // Чисто белый фон
+  margin-top: 71px;
+  width: 320px;
+  background-color: var.$color-bg-card;
   border-left: 1px solid var.$color-border;
   box-shadow: -4px 0 12px rgba(0, 0, 0, 0.02);
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  z-index: 1400; // Чуть ниже левого меню, но выше контента страницы
+  z-index: 1400;
+  transition: transform 0.3s ease; /* Плавное скрытие всей панели */
+
+  // Класс для скрытого состояния (уезжает вправо за экран)
+  &.collapsed {
+    transform: translateX(100%);
+  }
+}
+
+// Кнопка-язычок для правой панели (вылезает влево)
+.toggleBtn {
+  position: absolute;
+  top: 50%;
+  left: -15px; // Выносим кнопку влево за границу панели (ширина кнопки 24px + 1px на перекрытие границы)
+  transform: translateY(-50%);
+  width: 16px;
+  height: 80px;
+  background-color: var.$color-bg-card;
+  border: 1px solid var.$color-border;
+  border-right: none; // Убираем правую рамку, чтобы кнопка сливалась с панелью
+
+  // Плавные закругления сверху и снизу СЛЕВА (зеркально вашему рисунку, так как панель справа)
+  border-radius: 89px 0 0 89px;
+
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  outline: none;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.02); // Легкая тень под кнопку в тон панели
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f9fafb; // Легкая подсветка при наведении
+  }
+}
+
+// Иконка стрелочки
+.arrow {
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+
+  // Изначально смотрит вправо (указывает наружу, так как панель открыта)
+  transform: rotate(135deg);
+  transition: transform 0.3s ease;
+  // margin-left: 4px;
+}
+
+// Разворот стрелки влево, когда панель скрыта (чтобы звать пользователя открыть её)
+.newsFeedContainer.collapsed {
+  .arrow {
+    transform: rotate(-45deg);
+    margin-left: 4px;
+  }
 }
 
 .feedList {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  overflow-y: auto; // Если новостей много, внутри блока появится аккуратный скролл
+  overflow-y: auto;
   flex: 1;
   padding-right: 4px;
 
-  // Красивый тонкий скроллбар для современных браузеров
   &::-webkit-scrollbar {
     width: 4px;
   }
@@ -34,17 +143,16 @@
   }
 }
 
-// Отдельная карточка новости
 .newsItem {
   padding: 12px;
   border-radius: 10px;
-  background-color: #f9fafb; // Легкая серая подложка, чтобы выделяться на белой панели
+  background-color: #f9fafb;
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: var.$color-brand; // При наведении рамка подсвечивается фиолетовым
+    border-color: var.$color-brand;
     background-color: #ffffff;
     transform: translateY(-1px);
   }

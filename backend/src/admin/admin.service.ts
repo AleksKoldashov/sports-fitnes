@@ -237,7 +237,9 @@ export class AdminService {
   async getApplications(
     currentUserId: number,
     currentUserRole: Role,
-    status?: string, // <-- добавляем параметр статуса
+    status?: string,
+    limit?: number,
+    offset?: number,
   ) {
     // 1. Проверяем права
     if (currentUserRole !== 'DIRECTOR' && currentUserRole !== 'HR') {
@@ -253,7 +255,6 @@ export class AdminService {
 
     // 3. Фильтр по статусу (если передан)
     if (status) {
-      // Приводим статус к верхнему регистру для безопасности
       const validStatuses = ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'];
       const upperStatus = status.toUpperCase();
 
@@ -266,7 +267,11 @@ export class AdminService {
       }
     }
 
-    // 4. Получаем заявки
+    // 4. Запрос с пагинацией (по умолчанию limit = 10, offset = 0)
+    const take = limit || 10;
+    const skip = offset || 0;
+
+    // Получаем заявки с учётом пагинации
     const applications = await this.prisma.employeeApplication.findMany({
       where: whereCondition,
       include: {
@@ -286,8 +291,23 @@ export class AdminService {
       orderBy: {
         createdAt: 'desc',
       },
+      take: take,
+      skip: skip,
     });
 
-    return applications;
+    // Получаем общее количество заявок (для пагинации на фронте)
+    const totalCount = await this.prisma.employeeApplication.count({
+      where: whereCondition,
+    });
+
+    return {
+      data: applications,
+      pagination: {
+        total: totalCount,
+        limit: take,
+        offset: skip,
+        hasMore: skip + take < totalCount,
+      },
+    };
   }
 }

@@ -30,6 +30,58 @@ enum ApplicationStatus {
   CANCELLED
 }
 
+enum FitnessLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  PRO
+}
+
+enum MembershipStatus {
+  TRIAL
+  ACTIVE
+  EXPIRED
+}
+
+enum EventType {
+  GROUP
+  INDIVIDUAL
+}
+
+enum EventStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  CANCELLED_BY_TRAINER
+  CANCELLED_BY_USER
+  COMPLETED
+}
+
+enum ParticipantStatus {
+  PENDING
+  CONFIRMED
+  DECLINED
+}
+
+enum AttendanceStatus {
+  NOT_MARKED
+  PRESENT
+  ABSENT
+  LATE
+}
+
+enum RequestType {
+  INDIVIDUAL
+  GROUP
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  SCHEDULED
+}
+
 // ============================================
 // 3. ЯДРО СИСТЕМЫ (ПОЛЬЗОВАТЕЛИ)
 // ============================================
@@ -37,7 +89,7 @@ enum ApplicationStatus {
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  password  String   // Хранить только хеш (bcrypt)
+  password  String
   role      Role     @default(CLUB_MEMBER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -49,6 +101,7 @@ model User {
   hr         Hr?
   director   Director?
 
+  // Обратные связи для заявок
   createdApplications  EmployeeApplication[] @relation("CreatedApplications")
   reviewedApplications EmployeeApplication[] @relation("ReviewedApplications")
   notifications        Notification[]
@@ -59,15 +112,44 @@ model User {
 // ============================================
 
 model ClubMember {
-  id         Int      @id @default(autoincrement())
-  firstName  String
-  lastName   String
-  patronymic String?
-  age        Int
-  userId     Int      @unique
-  user       User     @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  
+  // Личные данные (заполняет участник)
+  firstName   String
+  lastName    String
+  patronymic  String?
+  age         Int
+  phone       String?
+  vk          String?
+  telegram    String?
+  
+  // Данные, назначаемые тренером
+  fitnessLevel FitnessLevel? @default(BEGINNER)
+  nutritionPlan String?
+  
+  // Статусы
+  membershipStatus MembershipStatus? @default(TRIAL)
+  membershipExpiresAt DateTime?
+  
+  // Связи
+  userId      Int      @unique
+  user        User     @relation(fields: [userId], references: [id])
+  
+  // Тренер, закреплённый за участником
+  trainerId   Int?
+  trainer     Trainer? @relation(fields: [trainerId], references: [id])
+  
+  // Интересы (многие-ко-многим)
+  interests ClubMemberInterest[]
+  
+  // Записи на тренировки
+  events     EventParticipant[]
+  
+  // Запросы на тренировки
+  trainingRequests TrainingRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Trainer {
@@ -83,6 +165,11 @@ model Trainer {
   user       User     @relation(fields: [userId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  // Связи
+  clubMembers ClubMember[]
+  events      Event[]
+  requests    TrainingRequest[]
 }
 
 model Manager {
@@ -173,6 +260,87 @@ model Posts {
 // ============================================
 // БУДУЩИЕ МОДУЛИ (ДЛЯ ПЛАНИРОВАНИЯ)
 // ============================================
+
+model TrainingRequest {
+  id           Int      @id @default(autoincrement())
+  type         RequestType @default(INDIVIDUAL)
+  preferredStart DateTime
+  preferredEnd   DateTime?
+  comment      String?
+  preferredLocation String?
+  
+  // Связи
+  clubMemberId Int
+  clubMember   ClubMember @relation(fields: [clubMemberId], references: [id])
+  trainerId    Int
+  trainer      Trainer @relation(fields: [trainerId], references: [id])
+  
+  status       RequestStatus @default(PENDING)
+  responseMessage String?
+  
+  // Если запрос превратился в событие
+  eventId      Int?
+  event        Event? @relation(fields: [eventId], references: [id])
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Interest {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  clubMembers ClubMemberInterest[]
+}
+
+model ClubMemberInterest {
+  clubMemberId Int
+  interestId   Int
+  clubMember   ClubMember @relation(fields: [clubMemberId], references: [id])
+  interest     Interest   @relation(fields: [interestId], references: [id])
+
+  @@id([clubMemberId, interestId])
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  type        EventType @default(GROUP)
+  startTime   DateTime
+  endTime     DateTime
+  location    String
+  maxParticipants Int @default(10)
+  status      EventStatus @default(PENDING_CONFIRMATION)
+  completedAt DateTime?
+  trainerNote String?
+  
+  // Связи
+  trainerId   Int
+  trainer     Trainer @relation(fields: [trainerId], references: [id])
+  participants EventParticipant[]
+  requests    TrainingRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EventParticipant {
+  id           Int      @id @default(autoincrement())
+  eventId      Int
+  event        Event    @relation(fields: [eventId], references: [id])
+  clubMemberId Int
+  clubMember   ClubMember @relation(fields: [clubMemberId], references: [id])
+  status       ParticipantStatus @default(PENDING)
+  confirmedBy  String?
+  confirmedAt  DateTime?
+  attendance   AttendanceStatus? @default(NOT_MARKED)
+  markedBy     Int?
+  markedAt     DateTime?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 
 // model Event {
 //   id        Int      @id @default(autoincrement())

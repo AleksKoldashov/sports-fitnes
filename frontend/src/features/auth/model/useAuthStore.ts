@@ -1,24 +1,18 @@
+import { apiClient } from '@shared/api/apiClient';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { IUser } from './IUser';
+import { AUTH_STORAGE_KEY } from './auth.constants';
 
-// Типы
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-  role: 'CLUB_MEMBER' | 'TRAINER' | 'HR' | 'DIRECTOR';
-}
-
-interface AuthState {
-  user: User | null;
+interface IAuthState {
+  user: IUser | null;
   token: string | null;
   isAuthenticated: boolean;
-  login: (user: User, token: string) => void;
+  login: (user: IUser, token: string) => void;
   logout: () => void;
 }
 
-// Создаём стор с persist (сохраняет состояние в localStorage)
-export const useAuthStore = create<AuthState>()(
+export const useAuthStore = create<IAuthState>()(
   persist(
     (set) => ({
       user: null,
@@ -27,18 +21,14 @@ export const useAuthStore = create<AuthState>()(
 
       login: (user, token) => {
         set({ user, token, isAuthenticated: true });
-        // Автоматически подставляем токен в Axios (настроим позже)
-        // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       },
 
       logout: () => {
         set({ user: null, token: null, isAuthenticated: false });
-        // Удаляем токен из Axios
-        // delete axios.defaults.headers.common['Authorization'];
+        delete apiClient.defaults.headers.common['Authorization'];
       },
     }),
-    {
-      name: 'auth-storage', // Ключ в localStorage
-    },
+    { name: AUTH_STORAGE_KEY },
   ),
 );

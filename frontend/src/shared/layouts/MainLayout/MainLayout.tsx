@@ -27,20 +27,22 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
 }) => {
   return (
     <div className={styles.layoutContainer}>
-      {/* Левый фиксированный сайдбар */}
-      {sidebarLeft}
-
       {/* Верхний фиксированный хедер */}
       <div className={styles.headerWrapper}>{header}</div>
 
       {/* Центральный динамический контент страницы */}
-      <main className={styles.mainContent}>{content}</main>
+      <main className={styles.mainContent}>
+        <>
+          {/* Левый фиксированный сайдбар */}
+          {sidebarLeft}
+          {content}
+          {/* Правый фиксированный сайдбар новостей */}
+          {sidebarRight}
+        </>
+      </main>
 
       {/* Нижний футер */}
       <div className={styles.footerWrapper}>{footer}</div>
-
-      {/* Правый фиксированный сайдбар новостей */}
-      {sidebarRight}
     </div>
   );
 };

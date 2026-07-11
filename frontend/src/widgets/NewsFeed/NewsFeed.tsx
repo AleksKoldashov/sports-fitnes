@@ -1,5 +1,5 @@
 import { Badge, Flex, Typography } from '@/ui';
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './NewsFeed.module.scss';
 
 interface NewsArticle {
@@ -10,6 +10,7 @@ interface NewsArticle {
 }
 
 export const NewsFeed: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
   // Фейковая спортивная лента новостей
   const newsList: NewsArticle[] = [
     {
@@ -45,8 +46,23 @@ export const NewsFeed: React.FC = () => {
     return 'error'; // Для событий сделаем красный
   };
 
+  const toggleSidebar = () => {
+    setIsOpen((prev) => !prev);
+  };
+
   return (
-    <aside className={styles.newsFeedContainer}>
+    <aside
+      className={`${styles.newsFeedContainer} ${!isOpen ? styles.collapsed : ''}`}
+    >
+      {/* Кнопка скрытия/раскрытия панели (теперь слева от неё) */}
+      <button
+        className={styles.toggleBtn}
+        onClick={toggleSidebar}
+        aria-label="Toggle sidebar"
+      >
+        <span className={styles.arrow}></span>
+      </button>
+
       {/* Шапка ленты */}
       <Flex direction="row" justify="between" align="center" max>
         <Typography tag="h3" size="16" style={{ fontWeight: 800 }}>

@@ -1,11 +1,27 @@
-import { AuthModal } from '@/features/auth/AuthByEmail/AuthModal';
-import { Flex, Typography } from '@/ui';
-import Profil from '@shared/assets/icons/profil.svg?react';
+import { useAuthStore, useLogout } from '@/features/auth';
+import { AuthModal } from '@/features/auth/ui/AuthModal';
+import { Button, Flex, Typography } from '@/ui';
+// import Profil from '@shared/assets/icons/profil.svg?react';
 import { useState } from 'react';
-import styles from './Header.module.scss';
+// import styles from './Header.module.scss';
 
 export const Header = () => {
+  const { isAuthenticated } = useAuthStore();
+  const logout = useLogout();
+
   const [isOpen, setOpen] = useState(false);
+
+  const handleOpenModalAuth = () => {
+    if (isAuthenticated) {
+      setOpen(false);
+      logout();
+      console.log('работает');
+
+      return;
+    }
+
+    setOpen(true);
+  };
   return (
     <Flex
       justify="between"
@@ -18,12 +34,15 @@ export const Header = () => {
       <Typography size="14" style={{ fontWeight: 600 }}>
         Текущая дата: {new Date().toLocaleDateString('ru-RU')}
       </Typography>
-      <Profil
+      {/* <Profil
         onClick={() => {
           setOpen(true);
         }}
         className={styles.profilIcon}
-      />
+      /> */}
+      <Button onClick={handleOpenModalAuth}>
+        {isAuthenticated ? <>Выйти</> : <>Войти</>}
+      </Button>
       <AuthModal isOpen={isOpen} onClose={() => setOpen(false)} />
     </Flex>
   );

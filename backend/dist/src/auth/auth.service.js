@@ -46,10 +46,15 @@ let AuthService = class AuthService {
             });
             return newUser;
         });
+        const payload = { sub: user.id, email: user.email, role: user.role };
+        const token = this.jwtService.sign(payload);
         return {
-            id: user.id,
-            email: user.email,
-            role: user.role,
+            access_token: token,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+            },
         };
     }
     async login(dto) {
