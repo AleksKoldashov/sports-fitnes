@@ -1,4 +1,5 @@
 import { Badge, Flex, Typography } from '@/ui';
+import { NotificationBell } from '@/ui/NotificationBell/NotificationBell';
 import React, { useState } from 'react';
 import styles from './NewsFeed.module.scss';
 
@@ -68,7 +69,8 @@ export const NewsFeed: React.FC = () => {
         <Typography tag="h3" size="16" style={{ fontWeight: 800 }}>
           ЛЕНТА НОВОСТЕЙ
         </Typography>
-        <span style={{ fontSize: '16px', cursor: 'pointer' }}>🔔</span>
+        {/* <span style={{ fontSize: '16px', cursor: 'pointer' }}>🔔</span> */}
+        <NotificationBell count={newsList.length} />
       </Flex>
 
       {/* Список новостей со скроллом */}

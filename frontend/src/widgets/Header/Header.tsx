@@ -1,6 +1,7 @@
 import { useAuthStore, useLogout } from '@/features/auth';
 import { AuthModal } from '@/features/auth/ui/AuthModal';
 import { Button, Flex, Typography } from '@/ui';
+import { NotificationBell } from '@/ui/NotificationBell/NotificationBell';
 // import Profil from '@shared/assets/icons/profil.svg?react';
 import { useState } from 'react';
 // import styles from './Header.module.scss';
@@ -40,6 +41,7 @@ export const Header = () => {
         }}
         className={styles.profilIcon}
       /> */}
+      <NotificationBell count={4} />
       <Button onClick={handleOpenModalAuth}>
         {isAuthenticated ? <>Выйти</> : <>Войти</>}
       </Button>
