@@ -6,7 +6,11 @@ import { NotificationBell } from '@/ui/NotificationBell/NotificationBell';
 import { useState } from 'react';
 // import styles from './Header.module.scss';
 
-export const Header = () => {
+interface IHeader {
+  onClickBell?: () => void;
+}
+
+export const Header = ({ onClickBell }: IHeader) => {
   const { isAuthenticated } = useAuthStore();
   const logout = useLogout();
 
@@ -35,13 +39,7 @@ export const Header = () => {
       <Typography size="14" style={{ fontWeight: 600 }}>
         Текущая дата: {new Date().toLocaleDateString('ru-RU')}
       </Typography>
-      {/* <Profil
-        onClick={() => {
-          setOpen(true);
-        }}
-        className={styles.profilIcon}
-      /> */}
-      <NotificationBell count={4} />
+      <NotificationBell count={4} onClickBell={onClickBell} />
       <Button onClick={handleOpenModalAuth}>
         {isAuthenticated ? <>Выйти</> : <>Войти</>}
       </Button>

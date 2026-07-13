@@ -1,6 +1,5 @@
 import { Badge, Flex, Typography } from '@/ui';
 import { NotificationBell } from '@/ui/NotificationBell/NotificationBell';
-import React, { useState } from 'react';
 import styles from './NewsFeed.module.scss';
 
 interface NewsArticle {
@@ -10,8 +9,12 @@ interface NewsArticle {
   time: string;
 }
 
-export const NewsFeed: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface INewsFeed {
+  isOpen: boolean;
+  setIsOpen?: () => void;
+}
+
+export const NewsFeed = ({ isOpen, setIsOpen }: INewsFeed) => {
   // Фейковая спортивная лента новостей
   const newsList: NewsArticle[] = [
     {
@@ -48,7 +51,7 @@ export const NewsFeed: React.FC = () => {
   };
 
   const toggleSidebar = () => {
-    setIsOpen((prev) => !prev);
+    setIsOpen?.();
   };
 
   return (

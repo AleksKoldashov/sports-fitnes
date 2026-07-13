@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import styles from './NotificationBell.module.scss';
 
-export const NotificationBell = ({ count = 0 }) => {
+interface INotificationBell {
+  count: number;
+  onClickBell?: () => void;
+}
+
+export const NotificationBell = ({
+  count = 0,
+  onClickBell,
+}: INotificationBell) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const displayCount = count > 9 ? '9+' : count;
 
@@ -21,6 +29,7 @@ export const NotificationBell = ({ count = 0 }) => {
     <div
       className={`${styles.bellWrapper} ${isAnimating ? styles.shake : ''}`}
       onAnimationEnd={handleAnimationEnd} // React-событие окончания CSS-анимации
+      onClick={onClickBell}
     >
       <svg xmlns="http://w3.org" viewBox="0 0 24 24" className={styles.bellSvg}>
         <defs>
