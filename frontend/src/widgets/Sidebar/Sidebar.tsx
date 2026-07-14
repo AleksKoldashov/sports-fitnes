@@ -1,25 +1,33 @@
-import { Avatar, Flex, Typography } from '@/ui';
+import { Avatar, Flex, Loader, Typography } from '@/ui';
 import React, { useState } from 'react';
-import styles from './Sidebar.module.scss';
 
-interface NavItem {
-  id: string;
-  label: string;
-  icon: string;
-}
+import { useProfile } from '@/features/user';
+import { useNavigate } from 'react-router-dom';
+import styles from './Sidebar.module.scss';
+import { NAVIGATION, PROFIL } from './const';
 
 export const Sidebar: React.FC = () => {
   // Локальное состояние для эмуляции переключения страниц (в будущем замените на React Router)
+  const { data, isLoading, error } = useProfile();
+
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Пункты меню вашего фитнес-приложения
-  const navigationItems: NavItem[] = [
-    { id: 'dashboard', label: 'Главная', icon: '📊' },
-    { id: 'workouts', label: 'Тренировки', icon: '💪' },
-    { id: 'nutrition', label: 'План питания', icon: '🍏' },
-    { id: 'analytics', label: 'Статистика', icon: '📈' },
-    { id: 'settings', label: 'Настройки', icon: '⚙️' },
-  ];
+  const navigate = useNavigate();
+
+  const handleTab = (path: string) => {
+    setActiveTab(path);
+    navigate(path);
+  };
+
+  if (!data) return null;
+
+  if (isLoading) return <Loader />;
+
+  if (error) return <>{error.message}</>;
+
+  console.log('data', data);
+
+  const { firstName, patronymic } = data.person_card;
 
   return (
     <aside className={styles.sidebar}>
@@ -39,15 +47,14 @@ export const Sidebar: React.FC = () => {
 
       {/* 2. ЦЕНТРАЛЬНЫЙ БЛОК: НАВИГАЦИЯ */}
       <nav className={styles.navLinks}>
-        {navigationItems.map((item) => {
-          const isItemActive = activeTab === item.id;
+        {NAVIGATION[data.role].map((item) => {
+          const isItemActive = activeTab === item.path;
           const linkClasses = `${styles.linkItem} ${isItemActive ? styles.active : ''}`;
-
           return (
             <div
-              key={item.id}
+              key={item.path}
               className={linkClasses}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => handleTab(item.path)}
             >
               <span className={styles.icon}>{item.icon}</span>
               <span>{item.label}</span>
@@ -62,10 +69,11 @@ export const Sidebar: React.FC = () => {
           <Avatar initials="АК" />
           <Flex direction="column" align="start" gap="4">
             <Typography size="14" tag="p" style={{ fontWeight: 700 }}>
-              Алекс К.
+              {firstName}
+              {patronymic}
             </Typography>
             <Typography size="12" tag="span">
-              Атлет / Профи
+              {PROFIL[data.role]}/ Профи
             </Typography>
           </Flex>
         </Flex>
