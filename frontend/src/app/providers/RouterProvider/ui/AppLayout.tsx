@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/features/auth';
 import { MainLayout } from '@/shared/layouts/MainLayout';
 import { Footer } from '@/widgets/Footer';
 import { Header } from '@/widgets/Header';
@@ -9,9 +10,13 @@ import { Outlet } from 'react-router-dom';
 export const AppLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const { user } = useAuthStore();
+
   const handleIsOpen = () => {
     setIsOpen((prev) => !prev);
   };
+  console.log('user', user?.role);
+
   return (
     <MainLayout
       sidebarLeft={<Sidebar />}

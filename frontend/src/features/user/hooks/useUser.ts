@@ -6,9 +6,8 @@ export const useProfile = () => {
     queryKey: ['user', 'profile'],
     queryFn: async () => {
       const response = await userApi.getProfile();
-      console.log(response);
 
-      return response.data; // <-- обязательно возвращаем response.data
+      return response.data;
     },
   });
 };

@@ -4,8 +4,7 @@ import { ROLES } from '@/shared';
 export const NAVIGATION = {
   [ROLES.DIRECTOR]: [
     { path: '/admin', label: 'Главная', icon: '📊' },
-    { path: 'workouts', label: 'Тренировки', icon: '💪' },
-    { path: 'analytics', label: 'Статистика', icon: '📈' },
+    { path: 'workouts', label: 'Сотрудники', icon: '💪' },
     { path: '/admin/setting', label: 'Настройки', icon: '⚙️' },
   ],
   [ROLES.CLUB_MEMBER]: [

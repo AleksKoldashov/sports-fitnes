@@ -1,4 +1,4 @@
-export { AdminPage } from './admin/AdminPage';
+export * from './admin';
 export { ClubMemberProfile } from './club-member/ClubMemberProfile';
 export { FeedPage } from './feed/FeedPage';
 export { LandingPage } from './landing/LandingPage';

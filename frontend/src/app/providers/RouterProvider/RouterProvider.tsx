@@ -1,12 +1,11 @@
 import {
-  AdminPage,
   ClubMemberProfile,
   DashboardPage,
   FeedPage,
   LandingPage,
   ManagerDashboardPage,
 } from '@/pages';
-import { AdminSetting } from '@/pages/admin/AdminSetting';
+import { AdminPage, AdminSetting } from '@/pages/admin';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AdminRoute } from '../AdminRoute';
 import { ProtectedRoute } from '../ProtectedRoute';

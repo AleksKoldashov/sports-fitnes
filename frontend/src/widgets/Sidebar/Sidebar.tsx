@@ -2,9 +2,10 @@ import { Avatar, Flex, Loader, Typography } from '@/ui';
 import React, { useState } from 'react';
 
 import { useProfile } from '@/features/user';
+
+import { NAVIGATION, PROFIL } from '@/shared/constants/navigation.constants';
 import { useNavigate } from 'react-router-dom';
 import styles from './Sidebar.module.scss';
-import { NAVIGATION, PROFIL } from './const';
 
 export const Sidebar: React.FC = () => {
   // Локальное состояние для эмуляции переключения страниц (в будущем замените на React Router)
