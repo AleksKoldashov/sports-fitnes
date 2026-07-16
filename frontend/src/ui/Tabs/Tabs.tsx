@@ -11,6 +11,7 @@ interface TabsProps {
   activeId: string;
   onTabChange: (id: string) => void;
   lineBottom?: boolean;
+  position?: 'center' | 'rigth';
 }
 
 export const Tabs: React.FC<TabsProps> = ({
@@ -18,10 +19,11 @@ export const Tabs: React.FC<TabsProps> = ({
   activeId,
   onTabChange,
   lineBottom,
+  position = 'center',
 }) => {
   const line = lineBottom ? styles.borBot : '';
   return (
-    <div className={`${styles.tabsList} ${line}`}>
+    <div className={`${styles.tabsList} ${line} ${position}`}>
       {items.map((tab) => (
         <button
           key={tab.id}

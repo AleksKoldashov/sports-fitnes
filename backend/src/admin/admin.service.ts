@@ -310,4 +310,114 @@ export class AdminService {
       },
     };
   }
+
+  async getEmployees(
+    currentUserRole?: Role,
+    limit?: number,
+    offset?: number,
+    roleFilter?: string,
+  ) {
+    if (currentUserRole !== 'DIRECTOR' && currentUserRole !== 'HR') {
+      throw new ForbiddenException('Нет доступа к заявкам');
+    }
+    // 4. Запрос с пагинацией (по умолчанию limit = 10, offset = 0)
+    const take = limit || 10;
+    const skip = offset || 0;
+
+    // 1. Формируем whereCondition
+    const whereCondition: any = {
+      // Исключаем CLUB_MEMBER
+      NOT: {
+        role: 'CLUB_MEMBER',
+      },
+    };
+
+    if (roleFilter) {
+      const validRoles = ['TRAINER', 'HR', 'MANAGER', 'DIRECTOR'];
+      const upperRole = roleFilter.toUpperCase();
+
+      if (!validRoles.includes(upperRole)) {
+        throw new BadRequestException(
+          'Некорректная роль. Допустимые: TRAINER, HR, MANAGER, DIRECTOR',
+        );
+      }
+
+      whereCondition.role = upperRole;
+    }
+
+    // Получаем заявки с учётом пагинации
+    const employees = await this.prisma.user.findMany({
+      where: whereCondition,
+      include: {
+        trainer: true, // <-- подгружаем данные тренера
+        hr: true, // <-- подгружаем данные HR
+        manager: true, // <-- подгружаем данные менеджера
+        director: true, // <-- подгружаем данные директора
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: take,
+      skip: skip,
+    });
+
+    // 3. Форматируем ответ (добавляем поля из профиля)
+    const formattedEmployees = employees.map((user) => {
+      let profile = null;
+
+      if (user.role === 'TRAINER' && user.trainer) {
+        profile = {
+          firstName: user.trainer.firstName,
+          lastName: user.trainer.lastName,
+          patronymic: user.trainer.patronymic,
+          specialty: user.trainer.specialty,
+          experience: user.trainer.experience,
+        };
+      } else if (user.role === 'HR' && user.hr) {
+        profile = {
+          firstName: user.hr.firstName,
+          lastName: user.hr.lastName,
+          patronymic: user.hr.patronymic,
+          phone: user.hr.phone,
+        };
+      } else if (user.role === 'MANAGER' && user.manager) {
+        profile = {
+          firstName: user.manager.firstName,
+          lastName: user.manager.lastName,
+          patronymic: user.manager.patronymic,
+          department: user.manager.department,
+          phone: user.manager.phone,
+        };
+      } else if (user.role === 'DIRECTOR' && user.director) {
+        profile = {
+          firstName: user.director.firstName,
+          lastName: user.director.lastName,
+          patronymic: user.director.patronymic,
+        };
+      }
+
+      return {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        profile, // <-- добавляем профиль
+      };
+    });
+
+    const totalCount = await this.prisma.employeeApplication.count({
+      where: whereCondition,
+    });
+
+    return {
+      data: formattedEmployees,
+      pagination: {
+        total: totalCount,
+        limit: take,
+        offset: skip,
+        hasMore: skip + take < totalCount,
+      },
+    };
+  }
 }

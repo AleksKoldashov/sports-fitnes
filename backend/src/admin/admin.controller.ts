@@ -21,6 +21,25 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 export class AdminController {
   constructor(private adminService: AdminService) {}
 
+  @Get('employees')
+  @Roles(Role.DIRECTOR)
+  async getEmployees(
+    @Request() req,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('role') role?: string,
+  ) {
+    const limitNumber = limit ? parseInt(limit, 10) : 10;
+    const offsetNumber = offset ? parseInt(offset, 10) : 0;
+
+    return this.adminService.getEmployees(
+      req.user.role as Role,
+      limitNumber,
+      offsetNumber,
+      role,
+    );
+  }
+
   // 1. Прямое создание сотрудника (только для директора)
   @Post('employees/direct')
   @Roles(Role.DIRECTOR)

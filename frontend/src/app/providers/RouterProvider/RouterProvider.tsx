@@ -5,7 +5,7 @@ import {
   LandingPage,
   ManagerDashboardPage,
 } from '@/pages';
-import { AdminPage, AdminSetting } from '@/pages/admin';
+import { AdminEmployess, AdminPage, AdminSetting } from '@/pages/admin';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AdminRoute } from '../AdminRoute';
 import { ProtectedRoute } from '../ProtectedRoute';
@@ -26,6 +26,7 @@ export const RouterProvider = () => {
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/setting" element={<AdminSetting />} />
+            <Route path="/admin/employess" element={<AdminEmployess />} />
           </Route>
 
           <Route element={<TrainerRoute />}>

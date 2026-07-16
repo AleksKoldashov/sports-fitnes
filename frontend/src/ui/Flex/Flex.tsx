@@ -6,6 +6,7 @@ export type FlexDirection = 'row' | 'column';
 export type FlexJustify = 'start' | 'center' | 'end' | 'between';
 export type FlexAlign = 'start' | 'center' | 'end';
 export type FlexGap = '4' | '8' | '12' | '16' | '24' | '32';
+export type FlexPadding = '10x5';
 
 // Наследуем стандартные атрибуты обычного div (чтобы работали onClick, id и т.д.)
 interface FlexProps extends DetailedHTMLProps<
@@ -17,6 +18,7 @@ interface FlexProps extends DetailedHTMLProps<
   align?: FlexAlign;
   gap?: FlexGap;
   max?: boolean; // Растянуть ли блок на 100% ширины
+  padding?: FlexPadding;
   children: React.ReactNode;
 }
 
@@ -40,6 +42,7 @@ export const Flex: React.FC<FlexProps> = (props) => {
     align = 'center',
     gap,
     max,
+    padding,
     className,
     children,
     ...otherProps
@@ -53,6 +56,7 @@ export const Flex: React.FC<FlexProps> = (props) => {
     ],
     styles[`justify${justify.charAt(0).toUpperCase() + justify.slice(1)}`],
     styles[`align${align.charAt(0).toUpperCase() + align.slice(1)}`],
+    styles[`pad${padding}`],
     gap && styles[`gap${gap}`],
     max && styles.max,
     className, // Возможность передать кастомный класс снаружи

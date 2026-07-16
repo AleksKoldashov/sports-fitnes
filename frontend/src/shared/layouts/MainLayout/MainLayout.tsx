@@ -12,6 +12,8 @@ interface MainLayoutProps {
   footer: React.ReactNode;
   /** Основное содержимое конкретной страницы (таблицы, карточки, графики) */
   content: React.ReactNode;
+
+  hiddenRigthContent?: boolean;
 }
 
 /**
@@ -24,6 +26,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   header,
   footer,
   content,
+  hiddenRigthContent,
 }) => {
   return (
     <div className={styles.layoutContainer}>
@@ -31,7 +34,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       <div className={styles.headerWrapper}>{header}</div>
 
       {/* Центральный динамический контент страницы */}
-      <main className={styles.mainContent}>
+      <main
+        className={`${styles.mainContent} ${!hiddenRigthContent && styles.notRight}`}
+      >
         <>
           {/* Левый фиксированный сайдбар */}
           {sidebarLeft}

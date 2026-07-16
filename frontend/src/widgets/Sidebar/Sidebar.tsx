@@ -26,8 +26,6 @@ export const Sidebar: React.FC = () => {
 
   if (error) return <>{error.message}</>;
 
-  console.log('data', data);
-
   const { firstName, patronymic } = data.person_card;
 
   return (

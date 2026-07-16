@@ -15,3 +15,11 @@ export const ROLE_REDIRECTS: Record<TRole, string> = {
   HR: '/admin',
   DIRECTOR: '/admin',
 };
+
+export const ROLES_NAME = {
+  CLUB_MEMBER: 'Член клуба',
+  TRAINER: 'Тренер',
+  MANAGER: 'Менеджер',
+  HR: 'HR',
+  DIRECTOR: 'Директор',
+};
