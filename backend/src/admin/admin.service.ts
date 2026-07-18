@@ -104,13 +104,16 @@ export class AdminService {
       const employee = await prisma.employee.create({
         data: {
           userId: user.id,
+          firstName: dto.firstName, // ✅
+          lastName: dto.lastName, // ✅
+          patronymic: dto.patronymic, // ✅
           positionId: position.id,
           gradeId: grade.id,
           currentSalary,
           corporateEmail,
           hireDate: new Date(),
           isActive: true,
-          workSchedule: workSchedule, // <-- теперь чистая структура
+          workSchedule: workSchedule,
         },
       });
 
@@ -125,6 +128,9 @@ export class AdminService {
       },
       employee: {
         id: result.employee.id,
+        firstName: result.employee.firstName,
+        lastName: result.employee.lastName,
+        patronymic: result.employee.patronymic,
         position: position.name,
         grade: grade.name,
         currentSalary: result.employee.currentSalary,
@@ -417,17 +423,15 @@ export class AdminService {
     roleFilter?: string,
   ) {
     if (currentUserRole !== 'DIRECTOR' && currentUserRole !== 'HR') {
-      throw new ForbiddenException('Нет доступа к заявкам');
+      throw new ForbiddenException('Нет доступа к списку сотрудников');
     }
-    // 4. Запрос с пагинацией (по умолчанию limit = 10, offset = 0)
+
     const take = limit || 10;
     const skip = offset || 0;
 
-    // 1. Формируем whereCondition
     const whereCondition: any = {
-      // Исключаем CLUB_MEMBER
-      NOT: {
-        role: 'CLUB_MEMBER',
+      role: {
+        not: 'CLUB_MEMBER',
       },
     };
 
@@ -444,14 +448,16 @@ export class AdminService {
       whereCondition.role = upperRole;
     }
 
-    // Получаем заявки с учётом пагинации
+    // ✅ Подгружаем Employee с должностью и грейдом
     const employees = await this.prisma.user.findMany({
       where: whereCondition,
       include: {
-        trainer: true, // <-- подгружаем данные тренера
-        hr: true, // <-- подгружаем данные HR
-        manager: true, // <-- подгружаем данные менеджера
-        director: true, // <-- подгружаем данные директора
+        employee: {
+          include: {
+            position: true,
+            grade: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -460,57 +466,59 @@ export class AdminService {
       skip: skip,
     });
 
-    // 3. Форматируем ответ (добавляем поля из профиля)
-    const formattedEmployees = employees.map((user) => {
-      let profile = null;
-
-      if (user.role === 'TRAINER' && user.trainer) {
-        profile = {
-          firstName: user.trainer.firstName,
-          lastName: user.trainer.lastName,
-          patronymic: user.trainer.patronymic,
-          specialty: user.trainer.specialty,
-          experience: user.trainer.experience,
-        };
-      } else if (user.role === 'HR' && user.hr) {
-        profile = {
-          firstName: user.hr.firstName,
-          lastName: user.hr.lastName,
-          patronymic: user.hr.patronymic,
-          phone: user.hr.phone,
-        };
-      } else if (user.role === 'MANAGER' && user.manager) {
-        profile = {
-          firstName: user.manager.firstName,
-          lastName: user.manager.lastName,
-          patronymic: user.manager.patronymic,
-          department: user.manager.department,
-          phone: user.manager.phone,
-        };
-      } else if (user.role === 'DIRECTOR' && user.director) {
-        profile = {
-          firstName: user.director.firstName,
-          lastName: user.director.lastName,
-          patronymic: user.director.patronymic,
-        };
-      }
-
-      return {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-        profile, // <-- добавляем профиль
-      };
-    });
-
-    const totalCount = await this.prisma.employeeApplication.count({
+    const totalCount = await this.prisma.user.count({
       where: whereCondition,
     });
 
+    // ✅ Формируем ответ
     return {
-      data: formattedEmployees,
+      data: employees.map((user) => {
+        const profile: any = {};
+
+        if (user.employee) {
+          const emp = user.employee;
+
+          // ✅ ФИО теперь из Employee
+          profile.firstName = emp.firstName;
+          profile.lastName = emp.lastName;
+          profile.patronymic = emp.patronymic;
+
+          profile.corporateEmail = emp.corporateEmail;
+          profile.position = emp.position?.name;
+          profile.grade = emp.grade?.name;
+          profile.currentSalary = emp.currentSalary;
+          profile.hireDate = emp.hireDate;
+          profile.isActive = emp.isActive;
+          profile.workSchedule = emp.workSchedule;
+          profile.avatarUrl = emp.avatarUrl;
+          profile.employeeId = emp.id;
+        }
+
+        // ✅ Добавляем специфические поля из старых таблиц (если есть)
+        if (user.role === 'TRAINER' && user.trainer) {
+          profile.specialty = user.trainer.specialty;
+          profile.experience = user.trainer.experience;
+          profile.rating = user.trainer.rating;
+        }
+
+        if (user.role === 'MANAGER' && user.manager) {
+          profile.department = user.manager.department;
+          profile.phone = user.manager.phone;
+        }
+
+        if (user.role === 'HR' && user.hr) {
+          profile.phone = user.hr.phone;
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          profile,
+        };
+      }),
       pagination: {
         total: totalCount,
         limit: take,

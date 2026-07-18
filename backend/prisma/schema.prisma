@@ -274,6 +274,11 @@ model Employee {
   userId            Int      @unique
   user              User     @relation(fields: [userId], references: [id])
 
+  // ✅ Добавляем поля ФИО
+  firstName         String  @default("")
+  lastName          String  @default("")
+  patronymic        String?
+
   // Должность и грейд
   positionId        Int
   position          Position @relation(fields: [positionId], references: [id])
