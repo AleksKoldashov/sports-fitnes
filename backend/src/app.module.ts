@@ -7,6 +7,8 @@ import { ClubMemberModule } from './club-member/club-member.module';
 import { PostsModule } from './posts/posts.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
+import { GradesModule } from './grades/grades.module';
+import { PositionsModule } from './positions/positions.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { UserModule } from './user/user.module';
     UserModule,
     AdminModule,
     ClubMemberModule,
+    GradesModule,
+    PositionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

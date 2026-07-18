@@ -96,6 +96,8 @@ model User {
 
   // Связи с профилями (1:1)
   clubMember ClubMember?
+   employee   Employee? 
+
   trainer    Trainer?
   manager    Manager?
   hr         Hr?
@@ -232,6 +234,220 @@ model EmployeeApplication {
 }
 
 // ============================================
+// ДОЛЖНОСТИ И ГРЕЙДЫ
+// ============================================
+
+model Position {
+  id                Int      @id @default(autoincrement())
+  name              String   @unique
+  role              Role              // TRAINER, HR, MANAGER, DIRECTOR
+  description       String?
+  ratePerTraining   Float?            // для тренеров (за 1 тренировку)
+  salesCommission   Float?            // для менеджеров (в %)
+  baseSalary        Float?   // <-- добавить, если нужно
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  employees         Employee[]
+}
+
+model Grade {
+  id                Int      @id @default(autoincrement())
+  name              String   @unique // Junior, Middle, Senior, Lead
+  baseSalary        Float            // базовый оклад
+  bonusRate         Float?   @default(0) // коэффициент премии
+  description       String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  employees         Employee[]
+}
+
+// ============================================
+// СОТРУДНИКИ (расширение User)
+// ============================================
+
+model Employee {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique
+  user              User     @relation(fields: [userId], references: [id])
+
+  // Должность и грейд
+  positionId        Int
+  position          Position @relation(fields: [positionId], references: [id])
+  gradeId           Int
+  grade             Grade    @relation(fields: [gradeId], references: [id])
+
+  // Зарплата (текущая)
+  currentSalary     Float?           // можно переопределить вручную
+
+  // График работы (JSON)
+  workSchedule      Json?            // { type: 'FIXED' | 'FLEXIBLE', days: {...} }
+
+  // Даты
+  hireDate          DateTime @default(now())
+  firedDate         DateTime?
+  isActive          Boolean  @default(true)
+
+  // Аватар
+  avatarUrl         String?
+
+  // Корпоративная почта
+  corporateEmail    String   @unique
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Связи
+  documents         EmployeeDocument[]
+  salaries          Salary[]
+  trainerEarnings   TrainerEarning[]
+  sales             Sale[]
+}
+
+// ============================================
+// ДОКУМЕНТЫ
+// ============================================
+
+model DocumentType {
+  id                Int      @id @default(autoincrement())
+  name              String   @unique // Паспорт, СНИЛС, ИНН, Договор
+  description       String?
+  isRequired        Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  documents         EmployeeDocument[]
+}
+
+model EmployeeDocument {
+  id                Int      @id @default(autoincrement())
+  employeeId        Int
+  employee          Employee @relation(fields: [employeeId], references: [id])
+  typeId            Int
+  type              DocumentType @relation(fields: [typeId], references: [id])
+
+  fileName          String
+  filePath          String
+  fileSize          Int
+  mimeType          String
+
+  uploadedAt        DateTime @default(now())
+  uploadedBy        Int              // User.id
+
+  isVerified        Boolean  @default(false)
+  verifiedAt        DateTime?
+  verifiedBy        Int?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ============================================
+// ЗАРПЛАТА
+// ============================================
+
+enum SalaryStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+model Salary {
+  id                Int      @id @default(autoincrement())
+  employeeId        Int
+  employee          Employee @relation(fields: [employeeId], references: [id])
+
+  period            String           // "2026-07"
+  amount            Float            // сумма к выплате
+
+  baseSalary        Float            // оклад за месяц
+  bonus             Float?           // премия/процент
+  deductions        Float?   @default(0) // вычеты
+
+  status            SalaryStatus @default(PENDING)
+  paidAt            DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ============================================
+// ДОХОД ТРЕНЕРА ОТ ТРЕНИРОВОК
+// ============================================
+
+model TrainerEarning {
+  id                Int      @id @default(autoincrement())
+  trainerId         Int
+  trainer           Employee @relation(fields: [trainerId], references: [id])
+  eventId           Int
+  event             Event    @relation(fields: [eventId], references: [id])
+
+  amount            Float            // доход тренера за эту тренировку
+  date              DateTime @default(now())
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ============================================
+// ПРОДАЖИ (для менеджера)
+// ============================================
+
+enum SaleType {
+  MEMBERSHIP
+  MERCH
+  SERVICE
+}
+
+model Sale {
+  id                Int      @id @default(autoincrement())
+  managerId         Int
+  manager           Employee @relation(fields: [managerId], references: [id])
+
+  amount            Float
+  type              SaleType
+  description       String?
+  date              DateTime @default(now())
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ============================================
+// ФИНАНСЫ (доходы/расходы клуба)
+// ============================================
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionCategory {
+  SALE           // продажи
+  RENT           // аренда
+  SALARY         // зарплаты
+  UTILITIES      // коммуналка
+  SERVICE        // услуги (массаж, бассейн)
+  OTHER
+}
+
+model Transaction {
+  id                Int      @id @default(autoincrement())
+  type              TransactionType
+  category          TransactionCategory
+  amount            Float
+  description       String?
+  date              DateTime @default(now())
+
+  createdBy         Int              // User.id
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ============================================
 // 6. СИСТЕМА УВЕДОМЛЕНИЙ
 // ============================================
 
@@ -314,11 +530,12 @@ model Event {
   completedAt DateTime?
   trainerNote String?
   
-  // Связи
   trainerId   Int
   trainer     Trainer @relation(fields: [trainerId], references: [id])
+  
   participants EventParticipant[]
   requests    TrainingRequest[]
+  trainerEarnings TrainerEarning[] // <-- ДОБАВИТЬ
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,24 +1,62 @@
-import { Role } from '@prisma/client';
+import { Type } from 'class-transformer';
+import { IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
 
-// создания сотрудника (прямое создание)
 export class CreateEmployeeDto {
-  email: string;
-  password: string;
-  role: Role; // TRAINER, MANAGER, HR, DIRECTOR
+  // Личные данные
+  @IsString()
   firstName: string;
+
+  @IsString()
   lastName: string;
+
+  @IsOptional()
+  @IsString()
   patronymic?: string;
 
-  // Поля для тренера
-  specialty?: string;
-  experience?: number;
+  // @IsEmail()
+  // email: string;
 
-  // Поля для менеджера
-  department?: string;
-  phone?: string;
+  @IsString()
+  password: string;
 
-  // Поля для HR
-  phoneHr?: string;
+  // Должность и грейд
+  @IsNumber()
+  @Type(() => Number) // <-- преобразуем строку в число
+  positionId: number;
 
-  // Поля для директора (пусто, только ФИО)
+  @IsNumber()
+  @Type(() => Number) // <-- преобразуем строку в число
+  gradeId: number;
+
+  // Зарплата (опционально)
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  currentSalary?: number;
+
+  // График работы
+  @IsString()
+  scheduleType: 'FIXED' | 'FLEXIBLE';
+
+  // Для FIXED: просто время
+  @IsOptional()
+  @IsString()
+  startTime?: string; // "09:00"
+
+  @IsOptional()
+  @IsString()
+  endTime?: string; // "18:00"
+
+  // Для FLEXIBLE: детальный график по дням
+  @IsOptional()
+  @IsObject()
+  workSchedule?: {
+    monday?: { start: string; end: string; isDayOff: boolean };
+    tuesday?: { start: string; end: string; isDayOff: boolean };
+    wednesday?: { start: string; end: string; isDayOff: boolean };
+    thursday?: { start: string; end: string; isDayOff: boolean };
+    friday?: { start: string; end: string; isDayOff: boolean };
+    saturday?: { start: string; end: string; isDayOff: boolean };
+    sunday?: { start: string; end: string; isDayOff: boolean };
+  };
 }

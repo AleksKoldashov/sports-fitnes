@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { generateUniqueCorporateEmail } from '../common/utils/generate-email';
 import { PrismaService } from '../prisma/prisma.service';
 import { ApproveApplicationDto } from './dto/approve-application.dto';
 import { CreateApplicationDto } from './dto/create-application.dto';
@@ -17,7 +18,9 @@ export class AdminService {
 
   // 1. ПРЯМОЕ СОЗДАНИЕ СОТРУДНИКА (только для директора)
   async createEmployeeDirectly(dto: CreateEmployeeDto, currentUserId: number) {
-    // Проверяем, что текущий пользователь — директор
+    // ... проверки прав, существования должности и грейда
+
+    // ✅ Только директор может создавать напрямую
     const currentUser = await this.prisma.user.findUnique({
       where: { id: currentUserId },
     });
@@ -28,43 +31,112 @@ export class AdminService {
       );
     }
 
-    // Проверяем, что пользователь с такой почтой не существует
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+    // ✅ Проверяем, что должность существует
+    const position = await this.prisma.position.findUnique({
+      where: { id: dto.positionId },
     });
-    if (existingUser) {
-      throw new BadRequestException(
-        'Пользователь с такой почтой уже существует',
-      );
+
+    if (!position) {
+      throw new NotFoundException('Должность не найдена');
     }
+
+    // ✅ Проверяем, что грейд существует
+    const grade = await this.prisma.grade.findUnique({
+      where: { id: dto.gradeId },
+    });
+
+    if (!grade) {
+      throw new NotFoundException('Грейд не найден');
+    }
+
+    // Генерируем корпоративную почту
+    const corporateEmail = await generateUniqueCorporateEmail(
+      dto.firstName,
+      dto.lastName,
+      async (email: string) => {
+        const exists = await this.prisma.user.findUnique({
+          where: { email },
+        });
+        return !!exists;
+      },
+    );
 
     // Хешируем пароль
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    // Создаём пользователя и профиль в транзакции
-    return await this.prisma.$transaction(async (prisma) => {
+    // Определяем зарплату
+    const currentSalary = dto.currentSalary || grade.baseSalary;
+
+    // ✅ Формируем график работы
+    let workSchedule: any = { type: dto.scheduleType };
+
+    if (dto.scheduleType === 'FIXED') {
+      workSchedule = {
+        type: 'FIXED',
+        startTime: dto.startTime || '09:00',
+        endTime: dto.endTime || '18:00',
+      };
+    } else if (dto.scheduleType === 'FLEXIBLE') {
+      workSchedule = {
+        type: 'FLEXIBLE',
+        days: dto.workSchedule || {
+          monday: { start: '09:00', end: '18:00', isDayOff: false },
+          tuesday: { start: '09:00', end: '18:00', isDayOff: false },
+          wednesday: { start: '09:00', end: '18:00', isDayOff: false },
+          thursday: { start: '09:00', end: '18:00', isDayOff: false },
+          friday: { start: '09:00', end: '18:00', isDayOff: false },
+          saturday: { start: '00:00', end: '00:00', isDayOff: true },
+          sunday: { start: '00:00', end: '00:00', isDayOff: true },
+        },
+      };
+    }
+
+    // Создаём пользователя и сотрудника в транзакции
+    const result = await this.prisma.$transaction(async (prisma) => {
       const user = await prisma.user.create({
         data: {
-          email: dto.email,
+          email: corporateEmail,
           password: hashedPassword,
-          role: dto.role,
+          role: position.role,
         },
       });
 
-      // Создаём профиль в зависимости от роли
-      await this.createProfile(prisma, user.id, dto);
+      const employee = await prisma.employee.create({
+        data: {
+          userId: user.id,
+          positionId: position.id,
+          gradeId: grade.id,
+          currentSalary,
+          corporateEmail,
+          hireDate: new Date(),
+          isActive: true,
+          workSchedule: workSchedule, // <-- теперь чистая структура
+        },
+      });
 
-      return {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      };
+      return { user, employee };
     });
+
+    return {
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        role: result.user.role,
+      },
+      employee: {
+        id: result.employee.id,
+        position: position.name,
+        grade: grade.name,
+        currentSalary: result.employee.currentSalary,
+        corporateEmail: result.employee.corporateEmail,
+        hireDate: result.employee.hireDate,
+        workSchedule: result.employee.workSchedule,
+      },
+    };
   }
 
   // 2. СОЗДАНИЕ ЗАЯВКИ (только для HR)
   async createApplication(dto: CreateApplicationDto, currentUserId: number) {
-    // Проверяем, что текущий пользователь — HR
     const currentUser = await this.prisma.user.findUnique({
       where: { id: currentUserId },
     });
@@ -73,17 +145,42 @@ export class AdminService {
       throw new ForbiddenException('Только HR может создавать заявки');
     }
 
-    // Проверяем, что пользователь с такой почтой не существует
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
+
     if (existingUser) {
       throw new BadRequestException(
         'Пользователь с такой почтой уже существует',
       );
     }
 
-    // Создаём заявку
+    // ✅ Проверяем, что должность существует
+    const position = await this.prisma.position.findUnique({
+      where: { id: dto.positionId },
+    });
+
+    if (!position) {
+      throw new NotFoundException('Должность не найдена');
+    }
+
+    // ✅ Проверяем, что грейд существует
+    const grade = await this.prisma.grade.findUnique({
+      where: { id: dto.gradeId },
+    });
+
+    if (!grade) {
+      throw new NotFoundException('Грейд не найден');
+    }
+
+    // ✅ Проверяем, что роль из должности совпадает с ролью, которую выбрал HR
+    if (position.role !== dto.role) {
+      throw new BadRequestException(
+        `Роль "${dto.role}" не соответствует должности "${position.name}" (ожидается "${position.role}")`,
+      );
+    }
+
+    // Создаём заявку с новыми полями
     return await this.prisma.employeeApplication.create({
       data: {
         email: dto.email,
@@ -96,6 +193,8 @@ export class AdminService {
           experience: dto.experience,
           department: dto.department,
           phone: dto.phone,
+          positionId: dto.positionId, // <-- сохраняем в JSON
+          gradeId: dto.gradeId, // <-- сохраняем в JSON
         },
         status: 'PENDING',
         createdById: currentUserId,
