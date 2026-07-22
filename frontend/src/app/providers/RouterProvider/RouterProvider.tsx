@@ -6,6 +6,7 @@ import {
   ManagerDashboardPage,
 } from '@/pages';
 import { AdminEmployess, AdminPage, AdminSetting } from '@/pages/admin';
+import { AdminClubMember } from '@/pages/admin/AdminClubMember';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AdminRoute } from '../AdminRoute';
 import { ProtectedRoute } from '../ProtectedRoute';
@@ -27,6 +28,7 @@ export const RouterProvider = () => {
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/setting" element={<AdminSetting />} />
             <Route path="/admin/employess" element={<AdminEmployess />} />
+            <Route path="/admin/club-member" element={<AdminClubMember />} />
           </Route>
 
           <Route element={<TrainerRoute />}>

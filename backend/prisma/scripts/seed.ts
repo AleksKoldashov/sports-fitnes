@@ -132,16 +132,6 @@ async function main() {
   // 4. Создаём директора
   const hashedPassword = await bcrypt.hash('admin123', 10);
 
-  const directorUser = await prisma.user.upsert({
-    where: { email: 'director@sports-fit.ru' },
-    update: {},
-    create: {
-      email: 'director@sports-fit.ru',
-      password: hashedPassword,
-      role: Role.DIRECTOR, // <-- используем enum
-    },
-  });
-
   const directorPosition = await prisma.position.findUnique({
     where: { name: 'Директор' },
   });
@@ -149,38 +139,32 @@ async function main() {
     where: { name: 'Lead' },
   });
 
-  if (directorPosition && leadGrade) {
-    const existingEmployee = await prisma.employee.findUnique({
-      where: { userId: directorUser.id },
-    });
+  const directorUser = await prisma.user.create({
+    data: {
+      email: 'director@sports-fit.ru',
+      password: hashedPassword,
+      role: 'DIRECTOR',
+    },
+  });
 
-    if (!existingEmployee) {
-      await prisma.employee.create({
-        data: {
-          userId: directorUser.id,
-          positionId: directorPosition.id,
-          gradeId: leadGrade.id,
-          currentSalary: leadGrade.baseSalary,
-          corporateEmail: 'director@sports-fit.ru',
-          hireDate: new Date(),
-          isActive: true,
-          workSchedule: {
-            type: 'FIXED',
-            days: {
-              monday: { start: '09:00', end: '18:00', isDayOff: false },
-              tuesday: { start: '09:00', end: '18:00', isDayOff: false },
-              wednesday: { start: '09:00', end: '18:00', isDayOff: false },
-              thursday: { start: '09:00', end: '18:00', isDayOff: false },
-              friday: { start: '09:00', end: '18:00', isDayOff: false },
-              saturday: { start: '00:00', end: '00:00', isDayOff: true },
-              sunday: { start: '00:00', end: '00:00', isDayOff: true },
-            },
-          },
-        },
-      });
-      console.log('✅ Сотрудник (Employee) создан для директора');
-    }
-  }
+  await prisma.employee.create({
+    data: {
+      userId: directorUser.id,
+      firstName: 'Алексей',
+      lastName: 'Иванов',
+      patronymic: 'Сергеевич',
+      positionId: directorPosition.id,
+      gradeId: leadGrade.id,
+      corporateEmail: 'director@sports-fit.ru',
+      hireDate: new Date(),
+      isActive: true,
+      workSchedule: {
+        type: 'FIXED',
+        startTime: '09:00',
+        endTime: '18:00',
+      },
+    },
+  });
 
   console.log('✅ Директор создан: director@sports-fit.ru / admin123');
   console.log('🌱 Сидирование завершено!');

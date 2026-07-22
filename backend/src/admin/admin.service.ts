@@ -104,16 +104,17 @@ export class AdminService {
       const employee = await prisma.employee.create({
         data: {
           userId: user.id,
-          firstName: dto.firstName, // ✅
-          lastName: dto.lastName, // ✅
-          patronymic: dto.patronymic, // ✅
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          patronymic: dto.patronymic,
+          phone: dto.phone,
           positionId: position.id,
           gradeId: grade.id,
           currentSalary,
           corporateEmail,
           hireDate: new Date(),
           isActive: true,
-          workSchedule: workSchedule,
+          workSchedule,
         },
       });
 
@@ -426,13 +427,13 @@ export class AdminService {
       throw new ForbiddenException('Нет доступа к списку сотрудников');
     }
 
-    const take = limit || 10;
+    const take = limit || 1000;
     const skip = offset || 0;
 
+    console.log('take', take);
+
     const whereCondition: any = {
-      role: {
-        not: 'CLUB_MEMBER',
-      },
+      role: { not: 'CLUB_MEMBER' },
     };
 
     if (roleFilter) {
@@ -448,7 +449,7 @@ export class AdminService {
       whereCondition.role = upperRole;
     }
 
-    // ✅ Подгружаем Employee с должностью и грейдом
+    // ✅ Подгружаем Employee (с position и grade)
     const employees = await this.prisma.user.findMany({
       where: whereCondition,
       include: {
@@ -459,11 +460,9 @@ export class AdminService {
           },
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      take: take,
-      skip: skip,
+      orderBy: { createdAt: 'desc' },
+      take,
+      skip,
     });
 
     const totalCount = await this.prisma.user.count({
@@ -478,10 +477,13 @@ export class AdminService {
         if (user.employee) {
           const emp = user.employee;
 
-          // ✅ ФИО теперь из Employee
+          // 🟢 Все данные из Employee
           profile.firstName = emp.firstName;
           profile.lastName = emp.lastName;
           profile.patronymic = emp.patronymic;
+          profile.phone = emp.phone;
+          profile.vk = emp.vk;
+          profile.telegram = emp.telegram;
 
           profile.corporateEmail = emp.corporateEmail;
           profile.position = emp.position?.name;
@@ -492,22 +494,6 @@ export class AdminService {
           profile.workSchedule = emp.workSchedule;
           profile.avatarUrl = emp.avatarUrl;
           profile.employeeId = emp.id;
-        }
-
-        // ✅ Добавляем специфические поля из старых таблиц (если есть)
-        if (user.role === 'TRAINER' && user.trainer) {
-          profile.specialty = user.trainer.specialty;
-          profile.experience = user.trainer.experience;
-          profile.rating = user.trainer.rating;
-        }
-
-        if (user.role === 'MANAGER' && user.manager) {
-          profile.department = user.manager.department;
-          profile.phone = user.manager.phone;
-        }
-
-        if (user.role === 'HR' && user.hr) {
-          profile.phone = user.hr.phone;
         }
 
         return {

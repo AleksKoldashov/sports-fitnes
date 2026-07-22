@@ -94,16 +94,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Связи с профилями (1:1)
-  clubMember ClubMember?
-   employee   Employee? 
+  // 👇 Единственная связь — с Employee
+  employee  Employee?
+  clubMember ClubMember? // (это пока оставляем для участников)
 
-  trainer    Trainer?
-  manager    Manager?
-  hr         Hr?
-  director   Director?
-
-  // Обратные связи для заявок
+  // Обратные связи для заявок и уведомлений
   createdApplications  EmployeeApplication[] @relation("CreatedApplications")
   reviewedApplications EmployeeApplication[] @relation("ReviewedApplications")
   notifications        Notification[]
@@ -136,10 +131,13 @@ model ClubMember {
   // Связи
   userId      Int      @unique
   user        User     @relation(fields: [userId], references: [id])
+
+   // ✅ Добавляем поле для аватарки
+  avatarUrl   String?      // <-- добавляем
   
-  // Тренер, закреплённый за участником
+   // ✅ Добавляем связь с Employee
   trainerId   Int?
-  trainer     Trainer? @relation(fields: [trainerId], references: [id])
+  trainer     Employee? @relation(fields: [trainerId], references: [id])
   
   // Интересы (многие-ко-многим)
   interests ClubMemberInterest[]
@@ -154,62 +152,6 @@ model ClubMember {
   updatedAt DateTime @updatedAt
 }
 
-model Trainer {
-  id         Int      @id @default(autoincrement())
-  firstName  String
-  lastName   String
-  patronymic String?
-  specialty  String
-  experience Int
-  rating     Float?   @default(0)
-  isActive   Boolean  @default(true)
-  userId     Int      @unique
-  user       User     @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Связи
-  clubMembers ClubMember[]
-  events      Event[]
-  requests    TrainingRequest[]
-}
-
-model Manager {
-  id         Int      @id @default(autoincrement())
-  firstName  String
-  lastName   String
-  patronymic String?
-  department String
-  phone      String
-  userId     Int      @unique
-  user       User     @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Hr {
-  id         Int      @id @default(autoincrement())
-  firstName  String
-  lastName   String
-  patronymic String?
-  phone      String
-  isActive   Boolean  @default(true)
-  userId     Int      @unique
-  user       User     @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Director {
-  id         Int      @id @default(autoincrement())
-  firstName  String
-  lastName   String
-  patronymic String?
-  userId     Int      @unique
-  user       User     @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
 
 // ============================================
 // 5. КАДРОВЫЙ УЧЕТ (ЗАЯВКИ)
@@ -270,46 +212,48 @@ model Grade {
 // ============================================
 
 model Employee {
-  id                Int      @id @default(autoincrement())
-  userId            Int      @unique
-  user              User     @relation(fields: [userId], references: [id])
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  user          User     @relation(fields: [userId], references: [id])
 
-  // ✅ Добавляем поля ФИО
-  firstName         String  @default("")
-  lastName          String  @default("")
-  patronymic        String?
+  // 👤 Личные данные
+  firstName     String
+  lastName      String
+  patronymic    String?
+  phone         String?
+  vk            String?
+  telegram      String?
 
-  // Должность и грейд
-  positionId        Int
-  position          Position @relation(fields: [positionId], references: [id])
-  gradeId           Int
-  grade             Grade    @relation(fields: [gradeId], references: [id])
+  // 💼 Должность и грейд
+  positionId    Int
+  position      Position @relation(fields: [positionId], references: [id])
+  gradeId       Int
+  grade         Grade    @relation(fields: [gradeId], references: [id])
 
-  // Зарплата (текущая)
-  currentSalary     Float?           // можно переопределить вручную
+  // 💰 Зарплата и график
+  currentSalary Float?
+  workSchedule  Json?    // { type: "FIXED" | "FLEXIBLE", ... }
+  hireDate      DateTime @default(now())
+  firedDate     DateTime?
+  isActive      Boolean  @default(true)
 
-  // График работы (JSON)
-  workSchedule      Json?            // { type: 'FIXED' | 'FLEXIBLE', days: {...} }
+  // 📎 Аватар и почта
+  avatarUrl     String?
+  corporateEmail String   @unique
 
-  // Даты
-  hireDate          DateTime @default(now())
-  firedDate         DateTime?
-  isActive          Boolean  @default(true)
+  // 📚 Связи с документами, зарплатами и т.д.
+  documents     EmployeeDocument[]
+  salaries      Salary[]
+  trainerEarnings TrainerEarning[]
+  sales         Sale[]
 
-  // Аватар
-  avatarUrl         String?
+  specialty   String?
 
-  // Корпоративная почта
-  corporateEmail    String   @unique
+  // ✅ Добавляем поле для отдела (для менеджеров)
+  department        String?   // <-- добавляем
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Связи
-  documents         EmployeeDocument[]
-  salaries          Salary[]
-  trainerEarnings   TrainerEarning[]
-  sales             Sale[]
+  events Event[]   // <-- добавляем эту строку
+  clubMembers ClubMember[]
 }
 
 // ============================================
@@ -494,7 +438,6 @@ model TrainingRequest {
   clubMemberId Int
   clubMember   ClubMember @relation(fields: [clubMemberId], references: [id])
   trainerId    Int
-  trainer      Trainer @relation(fields: [trainerId], references: [id])
   
   status       RequestStatus @default(PENDING)
   responseMessage String?
@@ -536,11 +479,13 @@ model Event {
   trainerNote String?
   
   trainerId   Int
-  trainer     Trainer @relation(fields: [trainerId], references: [id])
-  
+  trainer     Employee @relation(fields: [trainerId], references: [id]) // ✅ Employee
+
   participants EventParticipant[]
   requests    TrainingRequest[]
   trainerEarnings TrainerEarning[] // <-- ДОБАВИТЬ
+
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

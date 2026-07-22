@@ -13,22 +13,14 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class ClubMemberService {
   constructor(private prisma: PrismaService) {}
 
-  // получаем данные по профилю
+  // ============================================
+  // ПОЛУЧЕНИЕ ПРОФИЛЯ
+  // ============================================
   async getProfile(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
-        clubMember: {
-          include: {
-            trainer: {
-              select: {
-                firstName: true,
-                lastName: true,
-                specialty: true,
-              },
-            },
-          },
-        },
+        clubMember: true,
       },
     });
 
@@ -37,6 +29,18 @@ export class ClubMemberService {
     }
 
     const { clubMember } = user;
+
+    // ✅ Получаем данные тренера отдельно
+    let trainerName = null;
+    if (clubMember.trainerId) {
+      const trainer = await this.prisma.employee.findUnique({
+        where: { id: clubMember.trainerId },
+        select: { firstName: true, lastName: true, specialty: true },
+      });
+      if (trainer) {
+        trainerName = `${trainer.firstName} ${trainer.lastName}`;
+      }
+    }
 
     return {
       id: user.id,
@@ -54,18 +58,17 @@ export class ClubMemberService {
       membershipStatus: clubMember.membershipStatus,
       membershipExpiresAt: clubMember.membershipExpiresAt,
       trainerId: clubMember.trainerId,
-      trainerName: clubMember.trainer
-        ? `${clubMember.trainer.firstName} ${clubMember.trainer.lastName}`
-        : null,
+      trainerName: trainerName,
     };
   }
-  // обновление данных профиля и участником и тренером с правами
+  // ============================================
+  // ОБНОВЛЕНИЕ ПРОФИЛЯ
+  // ============================================
   async updateProfile(
     currentUserId: number,
     currentUserRole: Role,
     dto: UpdateProfileDto,
   ) {
-    // 1. Определяем, чей профиль обновляем
     let targetUserId = currentUserId;
 
     if (
@@ -83,7 +86,6 @@ export class ClubMemberService {
       );
     }
 
-    // 2. Находим пользователя и его профиль
     const user = await this.prisma.user.findUnique({
       where: { id: targetUserId },
       include: { clubMember: true },
@@ -93,14 +95,10 @@ export class ClubMemberService {
       throw new NotFoundException('Профиль не найден');
     }
 
-    // 3. Разделяем поля
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { userId, fitnessLevel, nutritionPlan, ...userEditableFields } = dto;
-
-    // 4. Формируем данные для обновления
     const updateData: any = { ...userEditableFields };
 
-    // 5. Проверяем права на изменение fitnessLevel и nutritionPlan
     if (currentUserRole === 'CLUB_MEMBER') {
       if (fitnessLevel || nutritionPlan) {
         throw new ForbiddenException(
@@ -114,16 +112,12 @@ export class ClubMemberService {
       currentUserRole === 'HR' ||
       currentUserRole === 'DIRECTOR'
     ) {
-      // 6. Если тренер — проверяем, что участник закреплён за ним
+      // ✅ Исправляем: ищем тренера в Employee
       if (currentUserRole === 'TRAINER') {
-        const trainer = await this.prisma.trainer.findUnique({
+        const trainer = await this.prisma.employee.findUnique({
           where: { userId: currentUserId },
           select: { id: true },
         });
-
-        console.log('currentUserId:', currentUserId);
-        console.log('Найденный trainer.id:', trainer?.id);
-        console.log('ClubMember.trainerId:', user.clubMember.trainerId);
 
         if (!trainer) {
           throw new NotFoundException('Тренер не найден');
@@ -131,38 +125,20 @@ export class ClubMemberService {
 
         if (user.clubMember.trainerId !== trainer.id) {
           throw new ForbiddenException(
-            `Вы можете изменять профиль только закреплённых за вами участников. Ваш trainer.id: ${trainer.id}, а у участника trainerId: ${user.clubMember.trainerId}`,
+            'Вы можете изменять профиль только закреплённых за вами участников',
           );
         }
       }
-      // if (currentUserRole === 'TRAINER') {
-      //   const trainer = await this.prisma.trainer.findUnique({
-      //     where: { userId: currentUserId },
-      //     select: { id: true },
-      //   });
-
-      //   if (!trainer) {
-      //     throw new NotFoundException('Тренер не найден');
-      //   }
-
-      //   if (user.clubMember.trainerId !== trainer.id) {
-      //     throw new ForbiddenException(
-      //       'Вы можете изменять профиль только закреплённых за вами участников',
-      //     );
-      //   }
-      // }
 
       if (fitnessLevel) updateData.fitnessLevel = fitnessLevel;
       if (nutritionPlan) updateData.nutritionPlan = nutritionPlan;
     }
 
-    // 7. Обновляем профиль
     const updated = await this.prisma.clubMember.update({
       where: { userId: targetUserId },
       data: updateData,
     });
 
-    // 8. Возвращаем обновлённый профиль
     return {
       id: user.id,
       email: user.email,
@@ -182,16 +158,14 @@ export class ClubMemberService {
     };
   }
 
-  // закрепление участника за тренером
+  // ============================================
+  // ЗАКРЕПЛЕНИЕ УЧАСТНИКА ЗА ТРЕНЕРОМ
+  // ============================================
   async assignTrainer(trainerUserId: number, clubMemberId: number) {
-    // console.log('trainerUserId:', trainerUserId);
-    // console.log('clubMemberId:', clubMemberId);
-
-    const trainer = await this.prisma.trainer.findUnique({
+    // ✅ Исправляем: ищем тренера в Employee
+    const trainer = await this.prisma.employee.findUnique({
       where: { userId: trainerUserId },
     });
-
-    console.log('Найденный trainer:', trainer);
 
     if (!trainer) {
       throw new NotFoundException('Тренер не найден');
@@ -204,8 +178,6 @@ export class ClubMemberService {
       },
     });
 
-    // console.log('Обновлённый участник:', updated);
-
     return {
       message: 'Тренер успешно закреплён за участником',
       clubMemberId: updated.id,
@@ -213,11 +185,11 @@ export class ClubMemberService {
     };
   }
 
-  // Получение списка участников для тренера
-
+  // ============================================
+  // СПИСОК УЧАСТНИКОВ ТРЕНЕРА
+  // ============================================
   async getMyClubMembers(trainerUserId: number) {
-    // 1. Находим тренера по userId
-    const trainer = await this.prisma.trainer.findUnique({
+    const trainer = await this.prisma.employee.findUnique({
       where: { userId: trainerUserId },
       select: { id: true },
     });
@@ -226,7 +198,6 @@ export class ClubMemberService {
       throw new NotFoundException('Тренер не найден');
     }
 
-    // 2. Получаем всех участников, закреплённых за этим тренером
     const clubMembers = await this.prisma.clubMember.findMany({
       where: {
         trainerId: trainer.id,
@@ -241,7 +212,6 @@ export class ClubMemberService {
       },
     });
 
-    // 3. Форматируем ответ
     return clubMembers.map((member) => ({
       id: member.id,
       userId: member.userId,
@@ -257,7 +227,9 @@ export class ClubMemberService {
     }));
   }
 
-  //  получению списка всех участников для HR и директора (с пагинацией и фильтрацией)
+  // ============================================
+  // ВСЕ УЧАСТНИКИ (HR и директор)
+  // ============================================
   async getAllMembers(
     query: {
       search?: string;
@@ -268,12 +240,10 @@ export class ClubMemberService {
     },
     currentUserRole: Role,
   ) {
-    // 1. Проверяем права
     if (currentUserRole !== 'HR' && currentUserRole !== 'DIRECTOR') {
       throw new ForbiddenException('Нет доступа к списку всех участников');
     }
 
-    // 2. Формируем фильтры
     const whereCondition: any = {};
 
     if (query.search) {
@@ -292,11 +262,9 @@ export class ClubMemberService {
       whereCondition.membershipStatus = query.membershipStatus;
     }
 
-    // 3. Явно преобразуем limit и offset в числа
-    const take = Number(query.limit) || 10;
+    const take = Number(query.limit) || 1000;
     const skip = Number(query.offset) || 0;
 
-    // 4. Получаем участников с пагинацией
     const [members, totalCount] = await Promise.all([
       this.prisma.clubMember.findMany({
         where: whereCondition,
@@ -308,6 +276,7 @@ export class ClubMemberService {
               role: true,
             },
           },
+          // ✅ Исправляем: trainer → employee
           trainer: {
             select: {
               id: true,
@@ -316,14 +285,13 @@ export class ClubMemberService {
             },
           },
         },
-        skip: skip,
-        take: take,
+        skip,
+        take,
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.clubMember.count({ where: whereCondition }),
     ]);
 
-    // 5. Форматируем ответ
     return {
       data: members.map((member) => ({
         id: member.id,
@@ -345,6 +313,8 @@ export class ClubMemberService {
         trainerName: member.trainer
           ? `${member.trainer.firstName} ${member.trainer.lastName}`
           : null,
+        avatarUrl: member.avatarUrl,
+        name: `${member.firstName} ${member.lastName}`,
       })),
       pagination: {
         total: totalCount,
@@ -355,13 +325,14 @@ export class ClubMemberService {
     };
   }
 
-  // получения детальной информации об участнике
+  // ============================================
+  // ДЕТАЛЬНАЯ ИНФОРМАЦИЯ ОБ УЧАСТНИКЕ
+  // ============================================
   async getMemberById(
     memberId: number,
     currentUserId: number,
     currentUserRole: Role,
   ) {
-    // 1. Находим участника
     const member = await this.prisma.clubMember.findUnique({
       where: { id: memberId },
       include: {
@@ -372,6 +343,7 @@ export class ClubMemberService {
             role: true,
           },
         },
+        // ✅ Исправляем: trainer → employee
         trainer: {
           select: {
             id: true,
@@ -387,13 +359,13 @@ export class ClubMemberService {
       throw new NotFoundException('Участник не найден');
     }
 
-    // 2. Проверяем права доступа
     if (currentUserRole === 'CLUB_MEMBER' && member.userId !== currentUserId) {
       throw new ForbiddenException('Нет доступа к этому профилю');
     }
 
+    // ✅ Исправляем: ищем тренера в Employee
     if (currentUserRole === 'TRAINER') {
-      const trainer = await this.prisma.trainer.findUnique({
+      const trainer = await this.prisma.employee.findUnique({
         where: { userId: currentUserId },
         select: { id: true },
       });
@@ -405,7 +377,6 @@ export class ClubMemberService {
       }
     }
 
-    // 3. Форматируем ответ
     return {
       id: member.id,
       userId: member.userId,
@@ -432,69 +403,14 @@ export class ClubMemberService {
     };
   }
 
-  // откреплению тренера от участника
-  async removeTrainer(
-    clubMemberId: number,
-    currentUserId: number,
-    currentUserRole: Role,
-  ) {
-    // 1. Находим участника
-    const member = await this.prisma.clubMember.findUnique({
-      where: { id: clubMemberId },
-      include: {
-        trainer: true,
-      },
-    });
-
-    if (!member) {
-      throw new NotFoundException('Участник не найден');
-    }
-
-    // 2. Проверяем, что у участника есть тренер
-    if (!member.trainerId) {
-      throw new BadRequestException('У этого участника нет тренера');
-    }
-
-    // 3. Проверяем права
-    if (currentUserRole === 'TRAINER') {
-      const trainer = await this.prisma.trainer.findUnique({
-        where: { userId: currentUserId },
-        select: { id: true },
-      });
-
-      if (!trainer || member.trainerId !== trainer.id) {
-        throw new ForbiddenException(
-          'Вы можете откреплять только своих участников',
-        );
-      }
-    }
-
-    if (currentUserRole === 'CLUB_MEMBER') {
-      throw new ForbiddenException('Участник не может откреплять тренера');
-    }
-
-    // 4. Открепляем тренера
-    const updated = await this.prisma.clubMember.update({
-      where: { id: clubMemberId },
-      data: {
-        trainerId: null,
-      },
-    });
-
-    return {
-      message: 'Тренер успешно откреплён от участника',
-      clubMemberId: updated.id,
-      trainerId: updated.trainerId,
-    };
-  }
-
-  // статистике участника
+  // ============================================
+  // СТАТИСТИКА УЧАСТНИКА
+  // ============================================
   async getMemberStats(
     memberId: number,
     currentUserId: number,
     currentUserRole: Role,
   ) {
-    // 1. Находим участника
     const member = await this.prisma.clubMember.findUnique({
       where: { id: memberId },
     });
@@ -503,13 +419,13 @@ export class ClubMemberService {
       throw new NotFoundException('Участник не найден');
     }
 
-    // 2. Проверяем права
     if (currentUserRole === 'CLUB_MEMBER' && member.userId !== currentUserId) {
       throw new ForbiddenException('Нет доступа к статистике этого участника');
     }
 
+    // ✅ Исправляем: ищем тренера в Employee
     if (currentUserRole === 'TRAINER') {
-      const trainer = await this.prisma.trainer.findUnique({
+      const trainer = await this.prisma.employee.findUnique({
         where: { userId: currentUserId },
         select: { id: true },
       });
@@ -521,41 +437,26 @@ export class ClubMemberService {
       }
     }
 
-    // 3. Собираем статистику
     const [totalEvents, completedEvents, attendanceStats] = await Promise.all([
-      // Общее количество тренировок
+      this.prisma.eventParticipant.count({
+        where: { clubMemberId: memberId },
+      }),
       this.prisma.eventParticipant.count({
         where: {
           clubMemberId: memberId,
+          event: { status: 'COMPLETED' },
         },
       }),
-
-      // Завершённые тренировки (где статус COMPLETED)
-      this.prisma.eventParticipant.count({
-        where: {
-          clubMemberId: memberId,
-          event: {
-            status: 'COMPLETED',
-          },
-        },
-      }),
-
-      // Статистика посещаемости
       this.prisma.eventParticipant.groupBy({
         by: ['attendance'],
         where: {
           clubMemberId: memberId,
-          event: {
-            status: 'COMPLETED',
-          },
+          event: { status: 'COMPLETED' },
         },
-        _count: {
-          attendance: true,
-        },
+        _count: { attendance: true },
       }),
     ]);
 
-    // 4. Форматируем статистику посещаемости
     const attendanceMap: Record<string, number> = {
       PRESENT: 0,
       ABSENT: 0,
@@ -569,7 +470,6 @@ export class ClubMemberService {
       }
     });
 
-    // 5. Вычисляем процент посещаемости
     const markedCount =
       attendanceMap.PRESENT + attendanceMap.ABSENT + attendanceMap.LATE;
     const attendanceRate =
@@ -594,20 +494,20 @@ export class ClubMemberService {
     };
   }
 
-  // смене статуса абонемента участника (для HR и директора)
+  // ============================================
+  // СМЕНА СТАТУСА АБОНЕМЕНТА
+  // ============================================
   async updateMembership(
     memberId: number,
     dto: UpdateMembershipDto,
     currentUserRole: Role,
   ) {
-    // 1. Проверяем права (только HR и директор)
     if (currentUserRole !== 'HR' && currentUserRole !== 'DIRECTOR') {
       throw new ForbiddenException(
         'Только HR или директор могут изменять статус абонемента',
       );
     }
 
-    // 2. Находим участника
     const member = await this.prisma.clubMember.findUnique({
       where: { id: memberId },
     });
@@ -616,7 +516,6 @@ export class ClubMemberService {
       throw new NotFoundException('Участник не найден');
     }
 
-    // 3. Обновляем статус
     const updated = await this.prisma.clubMember.update({
       where: { id: memberId },
       data: {
@@ -633,7 +532,9 @@ export class ClubMemberService {
     };
   }
 
-  // получению списка всех тренировок участника
+  // ============================================
+  // СПИСОК ТРЕНИРОВОК УЧАСТНИКА
+  // ============================================
   async getMemberEvents(
     memberId: number,
     currentUserId: number,
@@ -644,7 +545,6 @@ export class ClubMemberService {
       offset: number;
     },
   ) {
-    // 1. Находим участника
     const member = await this.prisma.clubMember.findUnique({
       where: { id: memberId },
     });
@@ -653,13 +553,13 @@ export class ClubMemberService {
       throw new NotFoundException('Участник не найден');
     }
 
-    // 2. Проверяем права
     if (currentUserRole === 'CLUB_MEMBER' && member.userId !== currentUserId) {
       throw new ForbiddenException('Нет доступа к тренировкам этого участника');
     }
 
+    // ✅ Исправляем: ищем тренера в Employee
     if (currentUserRole === 'TRAINER') {
-      const trainer = await this.prisma.trainer.findUnique({
+      const trainer = await this.prisma.employee.findUnique({
         where: { userId: currentUserId },
         select: { id: true },
       });
@@ -671,17 +571,14 @@ export class ClubMemberService {
       }
     }
 
-    // 3. Формируем фильтры
     const whereCondition: any = {
       clubMemberId: memberId,
     };
 
-    // Фильтр по статусу участника в событии
     if (query.status) {
       whereCondition.status = query.status;
     }
 
-    // 4. Получаем тренировки с пагинацией
     const take = Number(query.limit) || 10;
     const skip = Number(query.offset) || 0;
 
@@ -691,19 +588,19 @@ export class ClubMemberService {
         include: {
           event: {
             include: {
+              // ✅ Теперь тренер — это Employee
               trainer: {
                 select: {
                   id: true,
                   firstName: true,
                   lastName: true,
-                  specialty: true,
                 },
               },
             },
           },
         },
-        skip: skip,
-        take: take,
+        skip,
+        take,
         orderBy: {
           event: {
             startTime: 'desc',
@@ -713,7 +610,6 @@ export class ClubMemberService {
       this.prisma.eventParticipant.count({ where: whereCondition }),
     ]);
 
-    // 5. Форматируем ответ
     return {
       data: events.map((participant) => ({
         id: participant.id,
@@ -731,7 +627,6 @@ export class ClubMemberService {
         trainerName: participant.event.trainer
           ? `${participant.event.trainer.firstName} ${participant.event.trainer.lastName}`
           : null,
-        trainerSpecialty: participant.event.trainer?.specialty || null,
         createdAt: participant.createdAt,
       })),
       pagination: {
@@ -740,6 +635,67 @@ export class ClubMemberService {
         offset: skip,
         hasMore: skip + take < totalCount,
       },
+    };
+  }
+
+  // ============================================
+  // ОТКРЕПЛЕНИЕ ТРЕНЕРА ОТ УЧАСТНИКА
+  // ============================================
+  async removeTrainer(
+    clubMemberId: number,
+    currentUserId: number,
+    currentUserRole: Role,
+  ) {
+    const member = await this.prisma.clubMember.findUnique({
+      where: { id: clubMemberId },
+      include: {
+        trainer: {
+          select: {
+            firstName: true,
+            lastName: true,
+            specialty: true,
+          },
+        },
+      },
+    });
+
+    if (!member) {
+      throw new NotFoundException('Участник не найден');
+    }
+
+    if (!member.trainerId) {
+      throw new BadRequestException('У этого участника нет тренера');
+    }
+
+    if (currentUserRole === 'TRAINER') {
+      // ✅ Исправляем: ищем тренера в Employee
+      const trainer = await this.prisma.employee.findUnique({
+        where: { userId: currentUserId },
+        select: { id: true },
+      });
+
+      if (!trainer || member.trainerId !== trainer.id) {
+        throw new ForbiddenException(
+          'Вы можете откреплять только своих участников',
+        );
+      }
+    }
+
+    if (currentUserRole === 'CLUB_MEMBER') {
+      throw new ForbiddenException('Участник не может откреплять тренера');
+    }
+
+    const updated = await this.prisma.clubMember.update({
+      where: { id: clubMemberId },
+      data: {
+        trainerId: null,
+      },
+    });
+
+    return {
+      message: 'Тренер успешно откреплён от участника',
+      clubMemberId: updated.id,
+      trainerId: updated.trainerId,
     };
   }
 }

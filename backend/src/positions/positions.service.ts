@@ -25,6 +25,7 @@ export class PositionsService {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async findAll() {
     return this.prisma.position.findMany({
       where: { isActive: true },

@@ -5,6 +5,7 @@ export const NAVIGATION = {
   [ROLES.DIRECTOR]: [
     { path: '/admin', label: 'Главная', icon: '📊' },
     { path: '/admin/employess', label: 'Сотрудники', icon: '💪' },
+    { path: '/admin/club-member', label: 'Члены клуба', icon: '💪' },
     { path: '/admin/setting', label: 'Настройки', icon: '⚙️' },
   ],
   [ROLES.CLUB_MEMBER]: [

@@ -29,7 +29,7 @@ export class AdminController {
     @Query('offset') offset?: string,
     @Query('role') role?: string,
   ) {
-    const limitNumber = limit ? parseInt(limit, 10) : 10;
+    const limitNumber = limit ? parseInt(limit, 10) : 1000;
     const offsetNumber = offset ? parseInt(offset, 10) : 0;
 
     return this.adminService.getEmployees(

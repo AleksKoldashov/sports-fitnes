@@ -15,6 +15,9 @@ export class CreateEmployeeDto {
 
   // @IsEmail()
   // email: string;
+  @IsOptional()
+  @IsString()
+  phone?: string;
 
   @IsString()
   password: string;

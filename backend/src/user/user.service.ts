@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -10,21 +9,20 @@ export class UserService {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
+        employee: {
+          include: {
+            position: true,
+            grade: true,
+          },
+        },
         clubMember: true,
-        trainer: true,
-        hr: true,
-        director: true,
       },
     });
-    const person = {
-      [Role.DIRECTOR]: user.director,
-      [Role.CLUB_MEMBER]: user.clubMember,
-      [Role.HR]: user.hr,
-      [Role.MANAGER]: user.trainer,
-      [Role.TRAINER]: user.trainer,
-    };
-    // // Преобразуем в DTO и автоматически исключаем password
-    // return plainToInstance(UserResponseDto, user);
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
     const { id, email, role, createdAt, updatedAt } = user;
 
     const profilUser = {
@@ -34,6 +32,27 @@ export class UserService {
       createdAt,
       updatedAt,
     };
-    return { ...profilUser, person_card: person[role] };
+
+    // Если пользователь — сотрудник
+    if (user.employee) {
+      return {
+        ...profilUser,
+        person_card: {
+          ...user.employee,
+          position: user.employee.position?.name,
+          grade: user.employee.grade?.name,
+        },
+      };
+    }
+
+    // Если пользователь — клубный участник
+    if (user.clubMember) {
+      return {
+        ...profilUser,
+        person_card: user.clubMember,
+      };
+    }
+
+    return profilUser;
   }
 }

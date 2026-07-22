@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared';
-import { IEmployeesResponse } from '@/shared/types/IEmployeesResponse';
+import { IEmployeesResponse } from '../types';
 
 export const emploeesApi = {
   getEmployees: () => {
