@@ -9,7 +9,7 @@ export interface TabItem {
 interface TabsProps {
   items: TabItem[];
   activeId: string;
-  onTabChange: (id: string) => void;
+  onTabChange: (value: string) => void;
   lineBottom?: boolean;
   position?: 'center' | 'rigth';
 }

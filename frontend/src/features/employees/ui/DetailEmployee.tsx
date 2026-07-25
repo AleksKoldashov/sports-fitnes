@@ -1,7 +1,7 @@
-import { Employee } from '@/features/employees/types';
 import { texts } from '@/shared';
 import { Avatar, Button, Modal } from '@/ui';
 import { useState } from 'react';
+import { Employee } from '../types';
 
 interface IDetailEmployee {
   employee: Employee;
@@ -11,8 +11,6 @@ export const DetailEmployee = (props: IDetailEmployee) => {
   const { name, createdAt, details, id } = props.employee;
 
   const [isOpen, setIsOpen] = useState(false);
-
-  console.log(props.employee);
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { DetailEmployee } from '@/features/employees/ui/DetailEmployee';
 import { texts } from '@/shared';
 import { TableColumn } from '@/ui';
-import { Employee } from '../types';
+import { Employee } from '../../../features/employees/types';
 
 export const COLUMNS_EMPLOYEES: TableColumn<Employee>[] = [
   {

@@ -1,3 +1,5 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+
 import {
   ClubMemberProfile,
   DashboardPage,
@@ -7,11 +9,13 @@ import {
 } from '@/pages';
 import { AdminEmployess, AdminPage, AdminSetting } from '@/pages/admin';
 import { AdminClubMember } from '@/pages/admin/AdminClubMember';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { EmployeesTable } from '@/widgets/employees-table';
+import { EmploymentForm } from '@/widgets/employment-form';
+
+import { AppLayout } from '../../layout/app-layout';
 import { AdminRoute } from '../AdminRoute';
 import { ProtectedRoute } from '../ProtectedRoute';
 import { TrainerRoute } from '../TrainerRoute';
-import { AppLayout } from './ui/AppLayout';
 
 export const RouterProvider = () => {
   return (
@@ -27,7 +31,13 @@ export const RouterProvider = () => {
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/setting" element={<AdminSetting />} />
-            <Route path="/admin/employess" element={<AdminEmployess />} />
+            {/* Роуты сотрудников */}
+            <Route path="/admin/employess" element={<AdminEmployess />}>
+              <Route index element={<Navigate to="table" replace />} />
+              <Route path="table" element={<EmployeesTable />} />
+              <Route path="employment-form" element={<EmploymentForm />} />
+            </Route>
+            {/* Роуты членов клубы */}
             <Route path="/admin/club-member" element={<AdminClubMember />} />
           </Route>
 

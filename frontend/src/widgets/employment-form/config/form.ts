@@ -1,9 +1,3 @@
-export const TABS_EMPLOYEES = [
-  { id: '1', label: 'Все сотрудники' },
-  { id: '2', label: 'Принять на работу' },
-  { id: '3', label: 'Все участники клуба' },
-];
-
 export const FORM_EMPLOYEE = [
   {
     id: '1',
@@ -19,5 +13,19 @@ export const FORM_EMPLOYEE = [
     placeholder: 'Иван',
     label: 'Имя',
     name: 'firstName',
+  },
+  {
+    id: '3',
+    type: 'text',
+    placeholder: 'Иванович',
+    label: 'Отчество',
+    name: 'patronymic',
+  },
+  {
+    id: '3',
+    type: 'password',
+    placeholder: '123456',
+    label: 'Пароль',
+    name: 'password',
   },
 ];

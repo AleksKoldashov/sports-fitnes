@@ -1,5 +1,4 @@
 import { TRole } from '@/shared';
-import { IPagination } from '@/shared/types/IPagination';
 
 export interface Employee {
   id: string;
@@ -25,9 +24,4 @@ export interface ProfileEmployee {
   specialty?: string;
   experience?: number;
   phone?: string;
-}
-
-export interface IEmployeesResponse {
-  data: Daum[];
-  pagination: IPagination;
 }

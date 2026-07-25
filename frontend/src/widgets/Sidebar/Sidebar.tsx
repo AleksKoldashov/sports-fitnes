@@ -1,32 +1,27 @@
 import { Avatar, Flex, Loader, Typography } from '@/ui';
-import React, { useState } from 'react';
+import React from 'react';
 
-import { useProfile } from '@/features/user';
-
-import { NAVIGATION, PROFIL } from '@/shared/constants/navigation.constants';
-import { useNavigate } from 'react-router-dom';
+import { useProfile } from '@/entities/profile';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Sidebar.module.scss';
+import { NAVIGATION, PROFIL } from './config/navigation';
 
 export const Sidebar: React.FC = () => {
-  // Локальное состояние для эмуляции переключения страниц (в будущем замените на React Router)
-  const { data, isLoading, error } = useProfile();
+  const { data, isLoading, isError, error } = useProfile();
 
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const { pathname } = useLocation();
 
   const navigate = useNavigate();
-
-  const handleTab = (path: string) => {
-    setActiveTab(path);
-    navigate(path);
-  };
 
   if (!data) return null;
 
   if (isLoading) return <Loader />;
 
-  if (error) return <>{error.message}</>;
+  if (isError) return <>{error?.message}</>;
 
   const { firstName, patronymic } = data.person_card;
+
+  const currentRole = data.role;
 
   return (
     <aside className={styles.sidebar}>
@@ -46,14 +41,15 @@ export const Sidebar: React.FC = () => {
 
       {/* 2. ЦЕНТРАЛЬНЫЙ БЛОК: НАВИГАЦИЯ */}
       <nav className={styles.navLinks}>
-        {NAVIGATION[data.role].map((item) => {
-          const isItemActive = activeTab === item.path;
+        {NAVIGATION[currentRole].map((item) => {
+          const isItemActive =
+            pathname === item.path || pathname.startsWith(`${item.path}/`);
           const linkClasses = `${styles.linkItem} ${isItemActive ? styles.active : ''}`;
           return (
             <div
               key={item.path}
               className={linkClasses}
-              onClick={() => handleTab(item.path)}
+              onClick={() => navigate(item.path)}
             >
               <span className={styles.icon}>{item.icon}</span>
               <span>{item.label}</span>
