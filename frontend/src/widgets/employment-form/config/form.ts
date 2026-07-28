@@ -22,7 +22,7 @@ export const FORM_EMPLOYEE = [
     name: 'patronymic',
   },
   {
-    id: '3',
+    id: '4',
     type: 'password',
     placeholder: '123456',
     label: 'Пароль',

@@ -1,4 +1,4 @@
-import { ROLES } from '@/shared';
+import { ROLES } from '@/shared/config';
 
 // Используем квадратные скобки вокруг свойства ROLES.DIRECTOR
 export const NAVIGATION = {

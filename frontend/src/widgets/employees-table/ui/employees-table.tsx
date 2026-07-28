@@ -4,7 +4,7 @@ import { Employee } from '@/features/employees/types';
 
 import { useEmployees } from '@/entities/employee';
 
-import { ROLES_NAME } from '@/shared';
+import { ROLES_NAME } from '@/shared/config';
 import { converterDate } from '@/shared/lib/time';
 
 import { Loader, Table } from '@/ui';

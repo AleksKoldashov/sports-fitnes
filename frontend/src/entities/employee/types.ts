@@ -1,5 +1,4 @@
-import { TRole } from '@/shared';
-import { IPagination } from '@/shared/types/IPagination';
+import { TRole } from '@/shared/config';
 
 export interface Employee {
   id: string;
@@ -9,7 +8,7 @@ export interface Employee {
   details: any;
 }
 
-export interface Daum {
+export interface IEmployeesResponse {
   id: number;
   email: string;
   role: TRole;
@@ -25,11 +24,6 @@ export interface ProfileEmployee {
   specialty?: string;
   experience?: number;
   phone?: string;
-}
-
-export interface IEmployeesResponse {
-  data: Daum[];
-  pagination: IPagination;
 }
 
 // 1. Описываем структуру одного рабочего дня для гибкого графика

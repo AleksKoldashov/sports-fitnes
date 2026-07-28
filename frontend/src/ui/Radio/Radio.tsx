@@ -5,7 +5,7 @@ interface RadioProps {
   value: string;
   checked: boolean;
   name: string;
-  onChange: (value: string) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   label?: string;
 }
 
@@ -22,7 +22,8 @@ export const Radio: React.FC<RadioProps> = ({
       name={name}
       className={styles.hiddenInput}
       checked={checked}
-      onChange={() => onChange(value)}
+      onChange={onChange}
+      value={value}
     />
     <div className={styles.circle} />
     {label && <span style={{ fontSize: '14px' }}>{label}</span>}

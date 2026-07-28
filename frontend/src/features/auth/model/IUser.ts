@@ -1,4 +1,4 @@
-import { TRole } from '@/shared/types/TRole';
+import { TRole } from '@/shared/config';
 
 export interface IUser {
   id: number;

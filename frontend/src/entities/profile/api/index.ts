@@ -1,4 +1,5 @@
-import { apiClient, IProfileResponse } from '@/shared';
+import { apiClient } from '@/shared';
+import { IProfileResponse } from '../types';
 
 export const userApi = {
   getProfile: () => {

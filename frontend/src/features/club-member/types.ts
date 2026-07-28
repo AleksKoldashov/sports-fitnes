@@ -1,5 +1,5 @@
-import { TRole } from '@/shared';
-import { IPagination } from '@/shared/types/IPagination';
+import { TRole } from '@/shared/config';
+import { IPagination } from '@/shared/types';
 
 export interface IClubMember {
   id: number;

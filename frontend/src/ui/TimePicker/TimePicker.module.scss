@@ -1,0 +1,145 @@
+@use '../../app/styles/variables' as var;
+
+.timePickerWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  width: 100%;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var.$color-text-secondary;
+}
+
+.inputControl {
+  position: relative;
+  width: 100%;
+  max-width: 160px; // Время обычно компактнее, чем дата
+}
+
+.inputField {
+  width: 100%;
+  padding: 12px 16px;
+  padding-right: 40px;
+  font-size: 15px;
+  color: var.$color-text-primary;
+  background-color: var.$color-bg-card;
+  border: 1px solid var.$color-border;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:focus,
+  &.isOpen {
+    border-color: var.$color-brand;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  }
+
+  &.error {
+    border-color: var.$color-error;
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.placeholder {
+  color: #9ca3af;
+}
+
+.icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var.$color-text-secondary;
+  pointer-events: none;
+  width: 18px;
+  height: 18px;
+}
+
+/* Выпадающее окно выбора времени */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background-color: var.$color-bg-card;
+  border: 1px solid var.$color-border;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  gap: 4px;
+  height: 220px; // Фиксированная высота для удобного скролла
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  width: 56px;
+  scrollbar-width: thin; // Для Firefox
+
+  // Стилизация скроллбара для Webkit (Chrome, Safari, Edge)
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+
+  /* Разделитель между колонками часов и минут */
+  &:first-child {
+    border-right: 1px solid var.$color-border;
+    padding-right: 4px;
+  }
+}
+
+.timeButton {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var.$color-text-primary;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: rgba(79, 70, 229, 0.08);
+    color: var.$color-brand;
+  }
+
+  &.selected {
+    background-color: var.$color-brand;
+    color: #ffffff;
+    font-weight: 600;
+
+    &:hover {
+      background-color: var.$color-brand;
+      color: #ffffff;
+    }
+  }
+}
+
+.errorMessage {
+  color: var.$color-error;
+  font-size: 14px;
+}

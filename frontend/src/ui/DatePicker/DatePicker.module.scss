@@ -1,0 +1,173 @@
+@use '../../app/styles/variables' as var;
+
+.datePickerWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative; // Важно для позиционирования выпадающего календаря
+  width: 100%;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var.$color-text-secondary;
+}
+
+.inputControl {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+}
+
+.inputField {
+  width: 100%;
+  padding: 12px 16px;
+  padding-right: 40px; // Место для иконки справа
+  font-size: 15px;
+  color: var.$color-text-primary;
+  background-color: var.$color-bg-card;
+  border: 1px solid var.$color-border;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:focus,
+  &.isOpen {
+    border-color: var.$color-brand;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  }
+
+  &.error {
+    border-color: var.$color-error;
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.placeholder {
+  color: #9ca3af;
+}
+
+.icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var.$color-text-secondary;
+  pointer-events: none;
+  width: 18px;
+  height: 18px;
+}
+
+/* Выпадающее окно календаря */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background-color: var.$color-bg-card;
+  border: 1px solid var.$color-border;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  width: 300px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  span {
+    font-size: 15px;
+    font-weight: 600;
+    color: var.$color-text-primary;
+    text-transform: capitalize;
+  }
+}
+
+.navButton {
+  background: none;
+  border: 1px solid var.$color-border;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var.$color-text-primary;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+/* Сетка дней */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.weekDay {
+  font-size: 12px;
+  font-weight: 500;
+  color: var.$color-text-secondary;
+  padding: 6px 0;
+}
+
+.cell {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  height: 34px;
+  font-size: 14px;
+  color: var.$color-text-primary;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+
+  &:hover:not(.empty):not(.selected) {
+    background-color: rgba(79, 70, 229, 0.08);
+    color: var.$color-brand;
+  }
+
+  &.empty {
+    cursor: default;
+  }
+
+  &.today {
+    font-weight: 700;
+    border: 1px solid var.$color-brand;
+  }
+
+  &.selected {
+    background-color: var.$color-brand;
+    color: #ffffff;
+    font-weight: 600;
+  }
+}
+
+.errorMessage {
+  color: var.$color-error;
+  font-size: 14px;
+}

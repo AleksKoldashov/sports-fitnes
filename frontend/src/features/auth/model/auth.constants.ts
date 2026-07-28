@@ -1,4 +1,4 @@
-import { ROLE_REDIRECTS as ROLE_REDIRECTS_MAP } from '@shared/constants/roles.constants';
+import { ROLE_REDIRECTS as ROLE_REDIRECTS_MAP } from '@shared/config/roles';
 
 export const AUTH_STORAGE_KEY = 'auth-storage';
 

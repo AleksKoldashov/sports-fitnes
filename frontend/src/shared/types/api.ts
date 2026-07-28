@@ -4,3 +4,8 @@ export interface IPagination {
   offset: number;
   hasMore: boolean;
 }
+
+export interface IApiResponse<T> {
+  data: T[];
+  pagination: IPagination;
+}

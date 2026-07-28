@@ -1,4 +1,4 @@
-import { TRole } from '@/shared';
+import { TRole } from '@/shared/config';
 
 export interface Employee {
   id: string;
