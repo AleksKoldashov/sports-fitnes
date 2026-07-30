@@ -82,6 +82,9 @@ export const EmploymentForm = () => {
               value={time}
               onChange={setTime}
               minuteStep={15} // Шаг выбора минут кратен 15 (00, 15, 30, 45)
+              minTime="07:00" // Зал открывается в 7 утра
+              maxTime="23:00" // Последняя запись возможна до 23:00
+              name="ввв"
             />
           </>
         )}
